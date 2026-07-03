@@ -1,0 +1,16 @@
+[package]
+name = "pixel_planets_rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = { version = "0.19", features = ["2d"] }
+
+[dev-dependencies]
+bevy = { version = "0.19", features = ["2d", "ui"] }
+bevy_egui = "0.41"
+egui = "0.35"
+rand = "0.10"
+
+[features]
+dynamic = []
