@@ -49,8 +49,7 @@ impl Default for IslandsParams {
 #[derive(Debug)]
 pub struct OceanParams {
     pub rotation: f32,
-    pub dither_size: f32,
-    pub should_dither: bool,
+    pub dither_size: Option<f32>,
     pub light_border_1: f32,
     pub light_border_2: f32,
     pub colors: [LinearRgba; 3],
@@ -62,8 +61,7 @@ impl Default for OceanParams {
     fn default() -> Self {
         OceanParams {
             rotation: 100.0,
-            dither_size: 2.0,
-            should_dither: true,
+            dither_size: Some(2.0),
             light_border_1: 0.4,
             light_border_2: 0.6,
             colors: [
@@ -268,10 +266,10 @@ impl From<&IslandsParams> for PlanetUnder {
                 rotation: value.ocean_params.rotation,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed,
-                dither_size: value.ocean_params.dither_size,
+                dither_size: value.ocean_params.dither_size.unwrap_or(1.0),
                 light_border_1: value.ocean_params.light_border_1,
                 light_border_2: value.ocean_params.light_border_2,
-                should_dither: if value.ocean_params.should_dither { 1 } else { 0 },
+                should_dither: if value.ocean_params.dither_size.is_some() { 1 } else { 0 },
                 colors: value.ocean_params.colors,
                 size: value.ocean_params.size,
                 seed: value.ocean_params.seed,

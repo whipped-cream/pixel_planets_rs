@@ -47,9 +47,7 @@ impl Default for TerranParams {
 #[derive(Debug)]
 pub struct RiversParams {
     pub rotation: f32,
-    // pub time_speed: f32,
-    pub dither_size: f32,
-    pub should_dither: bool,
+    pub dither_size: Option<f32>,
     pub light_border_1: f32,
     pub light_border_2: f32,
     pub river_cutoff: f32,
@@ -63,8 +61,7 @@ impl Default for RiversParams {
         RiversParams {
             rotation: 0.2,
             // time_speed: 0.1,
-            dither_size: 3.951,
-            should_dither: true,
+            dither_size: Some(3.951),
             light_border_1: 0.287,
             light_border_2: 0.476,
             river_cutoff: 0.368,
@@ -218,8 +215,8 @@ impl From<&TerranParams> for Land {
                 rotation: value.land_params.rotation,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed,
-                dither_size: value.land_params.dither_size,
-                should_dither: if value.land_params.should_dither { 1 } else { 0 },
+                dither_size: value.land_params.dither_size.unwrap_or(1.0),
+                should_dither: if value.land_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.land_params.light_border_1,
                 light_border_2: value.land_params.light_border_2,
                 river_cutoff: value.land_params.river_cutoff,

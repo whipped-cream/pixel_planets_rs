@@ -49,8 +49,7 @@ impl Default for LavaWorldParams {
 #[derive(Debug)]
 pub struct SurfaceParams {
     pub rotation: f32,
-    pub dither_size: f32,
-    pub should_dither: bool,
+    pub dither_size: Option<f32>,
     pub light_border_1: f32,
     pub light_border_2: f32,
     pub colors: [LinearRgba; 3],
@@ -62,8 +61,7 @@ impl Default for SurfaceParams {
     fn default() -> Self {
         SurfaceParams {
             rotation: 0.0,
-            dither_size: 2.0,
-            should_dither: true,
+            dither_size: Some(2.0),
             light_border_1: 0.4,
             light_border_2: 0.6,
             colors: [
@@ -214,8 +212,8 @@ impl From<&LavaWorldParams> for Surface {
                 rotation: value.surface_params.rotation,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed,
-                dither_size: value.surface_params.dither_size,
-                should_dither: if value.surface_params.should_dither { 1 } else { 0 },
+                dither_size: value.surface_params.dither_size.unwrap_or(1.0),
+                should_dither: if value.surface_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.surface_params.light_border_1,
                 light_border_2: value.surface_params.light_border_2,
                 colors: value.surface_params.colors,
