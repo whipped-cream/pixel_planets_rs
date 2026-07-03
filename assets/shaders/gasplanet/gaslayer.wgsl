@@ -1,19 +1,8 @@
-/// ***************************** ///
-/// THIS IS THE DEFAULT 2D SHADER ///
-/// You can always get back to this with `python3 scripts/reset-2d.py` ///
-/// ***************************** ///
-
 #import bevy_sprite::mesh2d_view_bindings::globals
-#import bevy_render::view::View
 #import bevy_sprite::mesh2d_vertex_output::VertexOutput
 
 #import "shaders/planet_common.wgsl"::{tiled_rand, tiled_noise, fbm, spherify, rotate, dither, pixelize, compute_circle_mask, circle_noise, cloud_alpha}
-//#import "shaders/.wgsl"::{cloud_alpha}
 
-@group(0) @binding(0) var<uniform> view: View;
-
-
-// Uniforms
 const u_pixels: f32 = 100.;
 const u_cloud_cover: f32 = 0.4;
 const u_light_origin: vec2<f32> = vec2f(0.39);
@@ -22,16 +11,13 @@ const u_stretch: f32 = 2.0;
 const u_cloud_curve: f32 = 1.3;
 const u_light_border_1: f32 = 0.52;
 const u_light_border_2: f32 = 0.62;
-
 const u_rotation: f32 = 0.;
-
 const u_colors = array<vec4<f32>, 4>(
     vec4f(0.85, 0.45, 0.25, 1.0),  // deep orange
     vec4f(0.35, 0.65, 0.25, 1.0),  // leafy green
     vec4f(0.25, 0.55, 0.85, 1.0),  // ocean blue
     vec4f(0.95, 0.85, 0.35, 1.0),  // sunny yellow
 );
-
 const u_size: f32 = 50.;
 const u_octaves: u32 = 4;
 const u_seed: f32 = 1.;

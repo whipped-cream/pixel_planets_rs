@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
-use crate::bodies::building_blocks::clouds::Clouds;
+use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
 use crate::bodies::terran::CloudParams;
 
 pub fn build(app: &mut App) {
@@ -134,35 +134,39 @@ fn on_stormy_gas_giant_changed(
 
 fn make_base_layer(stormy_gas_giant_params: &StormyGasGiantParams) -> Clouds {
     Clouds {
-        pixels: stormy_gas_giant_params.pixels,
-        rotation: stormy_gas_giant_params.base_layer.rotation,
-        cloud_cover: stormy_gas_giant_params.base_layer.cloud_cover,
-        cloud_curve: stormy_gas_giant_params.base_layer.cloud_curve,
-        light_origin: stormy_gas_giant_params.light_origin,
-        time_speed: stormy_gas_giant_params.time_speed,
-        stretch: stormy_gas_giant_params.base_layer.stretch,
-        light_border_1: stormy_gas_giant_params.base_layer.light_border_1,
-        light_border_2: stormy_gas_giant_params.base_layer.light_border_2,
-        colors: stormy_gas_giant_params.base_layer.colors,
-        size: stormy_gas_giant_params.base_layer.size,
-        seed: stormy_gas_giant_params.base_layer.seed,
-        octaves: stormy_gas_giant_params.base_layer.octaves,
+        params: CloudsUniform {
+            pixels: stormy_gas_giant_params.pixels,
+            rotation: stormy_gas_giant_params.base_layer.rotation,
+            cloud_cover: stormy_gas_giant_params.base_layer.cloud_cover,
+            cloud_curve: stormy_gas_giant_params.base_layer.cloud_curve,
+            light_origin: stormy_gas_giant_params.light_origin,
+            time_speed: stormy_gas_giant_params.time_speed,
+            stretch: stormy_gas_giant_params.base_layer.stretch,
+            light_border_1: stormy_gas_giant_params.base_layer.light_border_1,
+            light_border_2: stormy_gas_giant_params.base_layer.light_border_2,
+            colors: stormy_gas_giant_params.base_layer.colors,
+            size: stormy_gas_giant_params.base_layer.size,
+            seed: stormy_gas_giant_params.base_layer.seed,
+            octaves: stormy_gas_giant_params.base_layer.octaves,
+        }
     }
 }
 fn make_storm_layer(stormy_gas_giant_params: &StormyGasGiantParams) -> Clouds {
     Clouds {
-        pixels: stormy_gas_giant_params.pixels,
-        rotation: stormy_gas_giant_params.storm_layer.rotation,
-        cloud_cover: stormy_gas_giant_params.storm_layer.cloud_cover,
-        cloud_curve: stormy_gas_giant_params.storm_layer.cloud_curve,
-        light_origin: stormy_gas_giant_params.light_origin,
-        time_speed: stormy_gas_giant_params.time_speed,
-        stretch: stormy_gas_giant_params.storm_layer.stretch,
-        light_border_1: stormy_gas_giant_params.storm_layer.light_border_1,
-        light_border_2: stormy_gas_giant_params.storm_layer.light_border_2,
-        colors: stormy_gas_giant_params.storm_layer.colors,
-        size: stormy_gas_giant_params.storm_layer.size,
-        seed: stormy_gas_giant_params.storm_layer.size,
-        octaves: stormy_gas_giant_params.storm_layer.octaves,
+        params: CloudsUniform {
+            pixels: stormy_gas_giant_params.pixels,
+            rotation: stormy_gas_giant_params.storm_layer.rotation,
+            cloud_cover: stormy_gas_giant_params.storm_layer.cloud_cover,
+            cloud_curve: stormy_gas_giant_params.storm_layer.cloud_curve,
+            light_origin: stormy_gas_giant_params.light_origin,
+            time_speed: stormy_gas_giant_params.time_speed,
+            stretch: stormy_gas_giant_params.storm_layer.stretch,
+            light_border_1: stormy_gas_giant_params.storm_layer.light_border_1,
+            light_border_2: stormy_gas_giant_params.storm_layer.light_border_2,
+            colors: stormy_gas_giant_params.storm_layer.colors,
+            size: stormy_gas_giant_params.storm_layer.size,
+            seed: stormy_gas_giant_params.storm_layer.size,
+            octaves: stormy_gas_giant_params.storm_layer.octaves,
+        }
     }
 }

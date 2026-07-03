@@ -3,10 +3,10 @@ use bevy::color::{LinearRgba, Srgba};
 use bevy::math::{vec2, Vec2};
 use bevy::mesh::{Mesh, Mesh2d};
 use bevy::prelude::*;
-use bevy::render::render_resource::AsBindGroup;
+use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
-use crate::bodies::building_blocks::clouds::Clouds;
+use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
 
 pub fn build(app: &mut App) {
     app
@@ -187,30 +187,22 @@ fn on_terran_changed(
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 struct Land {
     #[uniform(0)]
+    params: LandUniform
+}
+#[derive(ShaderType, Debug, Clone)]
+struct LandUniform {
     pixels: f32,
-    #[uniform(1)]
     rotation: f32,
-    #[uniform(2)]
     light_origin: Vec2,
-    #[uniform(3)]
     time_speed: f32,
-    #[uniform(4)]
     dither_size: f32,
-    #[uniform(5)]
     should_dither: u32,
-    #[uniform(6)]
     light_border_1: f32,
-    #[uniform(7)]
     light_border_2: f32,
-    #[uniform(8)]
     river_cutoff: f32,
-    #[uniform(9)]
     colors: [LinearRgba; 6],
-    #[uniform(10)]
     size: f32,
-    #[uniform(11)]
     seed: f32,
-    #[uniform(12)]
     octaves: u32,
 }
 impl Material2d for Land {
@@ -221,19 +213,21 @@ impl Material2d for Land {
 impl From<&TerranParams> for Land {
     fn from(value: &TerranParams) -> Self {
         Land {
-            pixels: value.pixels,
-            rotation: value.land_params.rotation,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed,
-            dither_size: value.land_params.dither_size,
-            should_dither: if value.land_params.should_dither {1} else {0},
-            light_border_1: value.land_params.light_border_1,
-            light_border_2: value.land_params.light_border_2,
-            river_cutoff: value.land_params.river_cutoff,
-            colors: value.land_params.colors.clone(),
-            size: value.land_params.size,
-            seed: value.land_params.seed,
-            octaves: value.land_params.octaves,
+            params: LandUniform {
+                pixels: value.pixels,
+                rotation: value.land_params.rotation,
+                light_origin: value.light_origin,
+                time_speed: value.time_speed,
+                dither_size: value.land_params.dither_size,
+                should_dither: if value.land_params.should_dither { 1 } else { 0 },
+                light_border_1: value.land_params.light_border_1,
+                light_border_2: value.land_params.light_border_2,
+                river_cutoff: value.land_params.river_cutoff,
+                colors: value.land_params.colors.clone(),
+                size: value.land_params.size,
+                seed: value.land_params.seed,
+                octaves: value.land_params.octaves,
+            }
         }
     }
 }
@@ -241,19 +235,21 @@ impl From<&TerranParams> for Land {
 impl From<&TerranParams> for Clouds {
     fn from(value: &TerranParams) -> Self {
         Clouds {
-            pixels: value.pixels,
-            rotation: value.cloud_params.rotation,
-            cloud_cover: value.cloud_params.cloud_cover,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed,
-            stretch: value.cloud_params.stretch,
-            cloud_curve: value.cloud_params.cloud_curve,
-            light_border_1: value.cloud_params.light_border_1,
-            light_border_2: value.cloud_params.light_border_2,
-            colors: value.cloud_params.colors.clone(),
-            size: value.cloud_params.size,
-            seed: value.cloud_params.seed,
-            octaves: value.cloud_params.octaves,
+            params: CloudsUniform {
+                pixels: value.pixels,
+                rotation: value.cloud_params.rotation,
+                cloud_cover: value.cloud_params.cloud_cover,
+                light_origin: value.light_origin,
+                time_speed: value.time_speed,
+                stretch: value.cloud_params.stretch,
+                cloud_curve: value.cloud_params.cloud_curve,
+                light_border_1: value.cloud_params.light_border_1,
+                light_border_2: value.cloud_params.light_border_2,
+                colors: value.cloud_params.colors.clone(),
+                size: value.cloud_params.size,
+                seed: value.cloud_params.seed,
+                octaves: value.cloud_params.octaves,
+            }
         }
     }
 }

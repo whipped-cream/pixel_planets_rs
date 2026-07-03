@@ -8,56 +8,56 @@
 
 
 override fn "shaders/planet_common.wgsl"::rand(coord: vec2<f32>, seed: f32) -> f32 {
-    return tiled_rand(coord, seed, u_size, 2.);
+    return tiled_rand(coord, seed, u_params.size, 2.);
 }
 
+struct Params {
+    pixels: f32,
+    rotation: f32,
+    light_origin: vec2<f32>,
+    time_speed: f32,
+    light_border_1: f32,
+    light_border_2: f32,
+    land_cutoff: f32,
+    colors: array<vec4<f32>, 4>,
+    size: f32,
+    seed: f32,
+    octaves: u32,
+}
 
-// Uniforms
-@group(#{MATERIAL_BIND_GROUP}) @binding(0) var<uniform> u_pixels: f32;
-@group(#{MATERIAL_BIND_GROUP}) @binding(1) var<uniform> u_rotation: f32;
-@group(#{MATERIAL_BIND_GROUP}) @binding(2) var<uniform> u_light_origin: vec2<f32>;
-@group(#{MATERIAL_BIND_GROUP}) @binding(3) var<uniform> u_time_speed: f32;
-//const u_dither_size: f32 = 2.; // This isnt actually used
-@group(#{MATERIAL_BIND_GROUP}) @binding(4) var<uniform> u_light_border_1: f32;
-@group(#{MATERIAL_BIND_GROUP}) @binding(5) var<uniform> u_light_border_2: f32;
-@group(#{MATERIAL_BIND_GROUP}) @binding(6) var<uniform> u_land_cutoff: f32;
+@group(#{MATERIAL_BIND_GROUP}) @binding(0) var<uniform> u_params: Params;
 
-@group(#{MATERIAL_BIND_GROUP}) @binding(7) var<uniform> u_colors: array<vec4<f32>, 4>;
-
-@group(#{MATERIAL_BIND_GROUP}) @binding(8) var<uniform> u_size: f32;
-@group(#{MATERIAL_BIND_GROUP}) @binding(9) var<uniform> u_seed: f32;
-@group(#{MATERIAL_BIND_GROUP}) @binding(10) var<uniform> u_octaves: u32;
 
 @fragment
 fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
-    let pixel_uv = pixelize(in.uv, u_pixels);
+    let pixel_uv = pixelize(in.uv, u_params.pixels);
 
-    var d_light = distance(pixel_uv, u_light_origin);
+    var d_light = distance(pixel_uv, u_params.light_origin);
 
     let a = compute_circle_mask(pixel_uv);
 
-    let rotated_uv = rotate(pixel_uv, u_rotation);
+    let rotated_uv = rotate(pixel_uv, u_params.rotation);
 
     var sphere_uv = spherify(rotated_uv);
 
-    let base_fbm_uv = sphere_uv * u_size + vec2f(globals.time * u_time_speed, 0.);
+    let base_fbm_uv = sphere_uv * u_params.size + vec2f(globals.time * u_params.time_speed, 0.);
 
     // use multiple fbm's at different places so we can determine what color land gets
-    let fbm1 = fbm(base_fbm_uv, u_octaves, u_seed);
-    var fbm2 = fbm(base_fbm_uv - u_light_origin * fbm1, u_octaves, u_seed);
-    var fbm3 = fbm(base_fbm_uv - u_light_origin * 1.5 * fbm1, u_octaves, u_seed);
-    var fbm4 = fbm(base_fbm_uv - u_light_origin * 2.0 * fbm1, u_octaves, u_seed);
+    let fbm1 = fbm(base_fbm_uv, u_params.octaves, u_params.seed);
+    var fbm2 = fbm(base_fbm_uv - u_params.light_origin * fbm1, u_params.octaves, u_params.seed);
+    var fbm3 = fbm(base_fbm_uv - u_params.light_origin * 1.5 * fbm1, u_params.octaves, u_params.seed);
+    var fbm4 = fbm(base_fbm_uv - u_params.light_origin * 2.0 * fbm1, u_params.octaves, u_params.seed);
 
     // lots of magic numbers here
     // you can mess with them, it changes the color distribution
-    if (d_light < u_light_border_1) {
+    if (d_light < u_params.light_border_1) {
         fbm4 *= 0.9;
     } else {
         fbm2 *= 1.05;
         fbm3 *= 1.05;
         fbm4 *= 1.05;
     }
-    if (d_light > u_light_border_2) {
+    if (d_light > u_params.light_border_2) {
         fbm2 *= 1.3;
         fbm3 *= 1.4;
         fbm4 *= 1.8;
@@ -76,9 +76,9 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     } else {
         level = 3;
     }
-    let col = u_colors[level];
+    let col = u_params.colors[level];
 
-    let land_mask = step(u_land_cutoff, fbm1);
+    let land_mask = step(u_params.land_cutoff, fbm1);
     if (land_mask == 0. || a == 0.) {
         discard;
     }

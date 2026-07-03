@@ -1,9 +1,9 @@
 use bevy::prelude::*;
-use bevy::render::render_resource::AsBindGroup;
+use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
-use crate::bodies::building_blocks::clouds::Clouds;
-use crate::bodies::building_blocks::planetunder::PlanetUnder;
+use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
+use crate::bodies::building_blocks::planetunder::{PlanetUnder, PlanetUnderUniform};
 
 pub fn build(app: &mut App) {
     app
@@ -221,26 +221,20 @@ fn on_islands_changed(
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 struct Landmass {
     #[uniform(0)]
+    params: LandmassUniform
+}
+#[derive(ShaderType, Debug, Clone)]
+struct LandmassUniform {
     pixels: f32,
-    #[uniform(1)]
     rotation: f32,
-    #[uniform(2)]
     light_origin: Vec2,
-    #[uniform(3)]
     time_speed: f32,
-    #[uniform(4)]
     light_border_1: f32,
-    #[uniform(5)]
     light_border_2: f32,
-    #[uniform(6)]
     land_cutoff: f32,
-    #[uniform(7)]
     colors: [LinearRgba; 4],
-    #[uniform(8)]
     size: f32,
-    #[uniform(9)]
     seed: f32,
-    #[uniform(10)]
     octaves: u32,
 }
 impl Material2d for Landmass {
@@ -249,17 +243,19 @@ impl Material2d for Landmass {
 impl From<&IslandsParams> for Landmass {
     fn from(value: &IslandsParams) -> Self {
         Landmass {
-            pixels: value.pixels,
-            rotation: value.landmass_params.rotation,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed,
-            light_border_1: value.landmass_params.light_border_1,
-            light_border_2: value.landmass_params.light_border_2,
-            land_cutoff: value.landmass_params.land_cutoff,
-            colors: value.landmass_params.colors,
-            size: value.landmass_params.size,
-            seed: value.landmass_params.seed,
-            octaves: value.landmass_params.octaves,
+            params: LandmassUniform {
+                pixels: value.pixels,
+                rotation: value.landmass_params.rotation,
+                light_origin: value.light_origin,
+                time_speed: value.time_speed,
+                light_border_1: value.landmass_params.light_border_1,
+                light_border_2: value.landmass_params.light_border_2,
+                land_cutoff: value.landmass_params.land_cutoff,
+                colors: value.landmass_params.colors,
+                size: value.landmass_params.size,
+                seed: value.landmass_params.seed,
+                octaves: value.landmass_params.octaves,
+            }
         }
     }
 }
@@ -267,18 +263,20 @@ impl From<&IslandsParams> for Landmass {
 impl From<&IslandsParams> for PlanetUnder {
     fn from(value: &IslandsParams) -> Self {
         PlanetUnder {
-            pixels: value.pixels,
-            rotation: value.ocean_params.rotation,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed,
-            dither_size: value.ocean_params.dither_size,
-            light_border_1: value.ocean_params.light_border_1,
-            light_border_2: value.ocean_params.light_border_2,
-            should_dither: if value.ocean_params.should_dither { 1 } else { 0 },
-            colors: value.ocean_params.colors,
-            size: value.ocean_params.size,
-            seed: value.ocean_params.seed,
-            octaves: value.ocean_params.octaves,
+            params: PlanetUnderUniform {
+                pixels: value.pixels,
+                rotation: value.ocean_params.rotation,
+                light_origin: value.light_origin,
+                time_speed: value.time_speed,
+                dither_size: value.ocean_params.dither_size,
+                light_border_1: value.ocean_params.light_border_1,
+                light_border_2: value.ocean_params.light_border_2,
+                should_dither: if value.ocean_params.should_dither { 1 } else { 0 },
+                colors: value.ocean_params.colors,
+                size: value.ocean_params.size,
+                seed: value.ocean_params.seed,
+                octaves: value.ocean_params.octaves,
+            }
         }
     }
 }
@@ -286,19 +284,21 @@ impl From<&IslandsParams> for PlanetUnder {
 impl From<&IslandsParams> for Clouds {
     fn from(value: &IslandsParams) -> Self {
         Clouds {
-            pixels: value.pixels,
-            rotation: value.cloud_params.rotation,
-            cloud_cover: value.cloud_params.cloud_cover,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed,
-            stretch: value.cloud_params.stretch,
-            cloud_curve: value.cloud_params.cloud_curve,
-            light_border_1: value.cloud_params.light_border_1,
-            light_border_2: value.cloud_params.light_border_2,
-            colors: value.cloud_params.colors,
-            size: value.cloud_params.size,
-            seed: value.cloud_params.seed,
-            octaves: value.cloud_params.octaves,
+            params: CloudsUniform {
+                pixels: value.pixels,
+                rotation: value.cloud_params.rotation,
+                cloud_cover: value.cloud_params.cloud_cover,
+                light_origin: value.light_origin,
+                time_speed: value.time_speed,
+                stretch: value.cloud_params.stretch,
+                cloud_curve: value.cloud_params.cloud_curve,
+                light_border_1: value.cloud_params.light_border_1,
+                light_border_2: value.cloud_params.light_border_2,
+                colors: value.cloud_params.colors,
+                size: value.cloud_params.size,
+                seed: value.cloud_params.seed,
+                octaves: value.cloud_params.octaves,
+            }
         }
     }
 }

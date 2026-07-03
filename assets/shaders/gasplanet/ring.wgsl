@@ -28,7 +28,6 @@ struct Params {
     octaves: u32,
 }
 
-// Uniforms
 @group(#{MATERIAL_BIND_GROUP}) @binding(0) var<uniform> u_params: Params;
 
 

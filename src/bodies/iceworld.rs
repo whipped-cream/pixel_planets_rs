@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
-use crate::bodies::building_blocks::clouds::Clouds;
-use crate::bodies::building_blocks::planetunder::PlanetUnder;
+use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
+use crate::bodies::building_blocks::planetunder::{PlanetUnder, PlanetUnderUniform};
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<PlanetUnder>>() {
@@ -216,18 +216,20 @@ fn on_ice_world_changed(
 impl From<&IceWorldParams> for PlanetUnder {
     fn from(value: &IceWorldParams) -> Self {
         PlanetUnder {
-            pixels: value.pixels,
-            rotation: value.land_params.rotation,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed,
-            dither_size: value.land_params.dither_size,
-            light_border_1: value.land_params.light_border_1,
-            light_border_2: value.land_params.light_border_2,
-            should_dither: if value.land_params.should_dither { 1 } else { 0 },
-            colors: value.land_params.colors,
-            size: value.land_params.size,
-            seed: value.land_params.seed,
-            octaves: value.land_params.octaves,
+            params: PlanetUnderUniform {
+                pixels: value.pixels,
+                rotation: value.land_params.rotation,
+                light_origin: value.light_origin,
+                time_speed: value.time_speed,
+                dither_size: value.land_params.dither_size,
+                light_border_1: value.land_params.light_border_1,
+                light_border_2: value.land_params.light_border_2,
+                should_dither: if value.land_params.should_dither { 1 } else { 0 },
+                colors: value.land_params.colors,
+                size: value.land_params.size,
+                seed: value.land_params.seed,
+                octaves: value.land_params.octaves,
+            }
         }
     }
 }
@@ -277,19 +279,21 @@ impl From<&IceWorldParams> for Lakes {
 impl From<&IceWorldParams> for Clouds {
     fn from(value: &IceWorldParams) -> Self {
         Clouds {
-            pixels: value.pixels,
-            rotation: value.cloud_params.rotation,
-            cloud_cover: value.cloud_params.cloud_cover,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed,
-            stretch: value.cloud_params.stretch,
-            cloud_curve: value.cloud_params.cloud_curve,
-            light_border_1: value.cloud_params.light_border_1,
-            light_border_2: value.cloud_params.light_border_2,
-            colors: value.cloud_params.colors,
-            size: value.cloud_params.size,
-            seed: value.cloud_params.seed,
-            octaves: value.cloud_params.octaves,
+            params: CloudsUniform {
+                pixels: value.pixels,
+                rotation: value.cloud_params.rotation,
+                cloud_cover: value.cloud_params.cloud_cover,
+                light_origin: value.light_origin,
+                time_speed: value.time_speed,
+                stretch: value.cloud_params.stretch,
+                cloud_curve: value.cloud_params.cloud_curve,
+                light_border_1: value.cloud_params.light_border_1,
+                light_border_2: value.cloud_params.light_border_2,
+                colors: value.cloud_params.colors,
+                size: value.cloud_params.size,
+                seed: value.cloud_params.seed,
+                octaves: value.cloud_params.octaves,
+            }
         }
     }
 }

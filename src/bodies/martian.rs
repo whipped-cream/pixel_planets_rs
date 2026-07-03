@@ -3,7 +3,7 @@ use bevy::color::{LinearRgba, Srgba};
 use bevy::math::Vec2;
 use bevy::mesh::{Mesh, Mesh2d};
 use bevy::prelude::*;
-use bevy::render::render_resource::AsBindGroup;
+use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
 
@@ -110,30 +110,22 @@ struct MartianHandles {
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 struct Martian {
     #[uniform(0)]
+    params: MartianUniform
+}
+#[derive(ShaderType, Debug, Clone)]
+struct MartianUniform {
     pixels: f32,
-    #[uniform(1)]
     rotation: f32,
-    #[uniform(2)]
     light_origin: Vec2,
-    #[uniform(3)]
     light_border_1: f32,
-    #[uniform(4)]
     light_border_2: f32,
-    #[uniform(5)]
     time_speed: f32,
-    #[uniform(6)]
     dither_size: f32,
-    #[uniform(7)]
     should_dither: u32,
-    #[uniform(8)]
     colors: [LinearRgba; 5],
-    #[uniform(9)]
     num_colors: u32,
-    #[uniform(10)]
     size: f32,
-    #[uniform(11)]
     seed: f32,
-    #[uniform(12)]
     octaves: u32
 }
 impl Material2d for Martian {
@@ -142,19 +134,21 @@ impl Material2d for Martian {
 impl From<&MartianParams> for Martian {
     fn from(value: &MartianParams) -> Self {
         Martian {
-            pixels: value.pixels,
-            rotation: value.rotation,
-            light_origin: value.light_origin,
-            light_border_1: value.light_border_1,
-            light_border_2: value.light_border_2,
-            time_speed: value.time_speed,
-            dither_size: value.dither_size,
-            should_dither: if value.should_dither { 1 } else { 0 },
-            colors: make_color_array(&value.colors),
-            num_colors: value.colors.len() as u32,
-            size: value.size,
-            seed: value.seed,
-            octaves: value.octaves,
+            params: MartianUniform {
+                pixels: value.pixels,
+                rotation: value.rotation,
+                light_origin: value.light_origin,
+                light_border_1: value.light_border_1,
+                light_border_2: value.light_border_2,
+                time_speed: value.time_speed,
+                dither_size: value.dither_size,
+                should_dither: if value.should_dither { 1 } else { 0 },
+                colors: make_color_array(&value.colors),
+                num_colors: value.colors.len() as u32,
+                size: value.size,
+                seed: value.seed,
+                octaves: value.octaves,
+            }
         }
     }
 }

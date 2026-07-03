@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
-use crate::bodies::building_blocks::craters::Craters;
-use crate::bodies::building_blocks::surface::Surface;
+use crate::bodies::building_blocks::craters::{Craters, CratersUniform};
+use crate::bodies::building_blocks::surface::{Surface, SurfaceUniform};
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Surface>>() {
@@ -209,18 +209,20 @@ fn on_lava_world_changed(
 impl From<&LavaWorldParams> for Surface {
     fn from(value: &LavaWorldParams) -> Self {
         Surface {
-            pixels: value.pixels,
-            rotation: value.surface_params.rotation,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed,
-            dither_size: value.surface_params.dither_size,
-            should_dither: if value.surface_params.should_dither { 1 } else { 0 },
-            light_border_1: value.surface_params.light_border_1,
-            light_border_2: value.surface_params.light_border_2,
-            colors: value.surface_params.colors,
-            size: value.surface_params.size,
-            seed: value.surface_params.seed,
-            octaves: value.surface_params.octaves,
+            params: SurfaceUniform {
+                pixels: value.pixels,
+                rotation: value.surface_params.rotation,
+                light_origin: value.light_origin,
+                time_speed: value.time_speed,
+                dither_size: value.surface_params.dither_size,
+                should_dither: if value.surface_params.should_dither { 1 } else { 0 },
+                light_border_1: value.surface_params.light_border_1,
+                light_border_2: value.surface_params.light_border_2,
+                colors: value.surface_params.colors,
+                size: value.surface_params.size,
+                seed: value.surface_params.seed,
+                octaves: value.surface_params.octaves,
+            }
         }
     }
 }
@@ -228,14 +230,16 @@ impl From<&LavaWorldParams> for Surface {
 impl From<&LavaWorldParams> for Craters {
     fn from(value: &LavaWorldParams) -> Self {
         Craters {
-            pixels: value.pixels * 87.419 / 100.0,
-            rotation: value.craters_params.rotation,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed,
-            light_border: value.craters_params.light_border,
-            colors: value.craters_params.colors,
-            size: value.craters_params.size,
-            seed: value.craters_params.seed,
+            params: CratersUniform {
+                pixels: value.pixels * 87.419 / 100.0,
+                rotation: value.craters_params.rotation,
+                light_origin: value.light_origin,
+                time_speed: value.time_speed,
+                light_border: value.craters_params.light_border,
+                colors: value.craters_params.colors,
+                size: value.craters_params.size,
+                seed: value.craters_params.seed,
+            }
         }
     }
 }
