@@ -4,6 +4,7 @@ use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
 use crate::bodies::building_blocks::planetunder::{PlanetUnder, PlanetUnderUniform};
+use crate::bodies::PixelPlanet;
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<PlanetUnder>>() {
@@ -20,7 +21,8 @@ pub fn build(app: &mut App) {
     app.add_systems(Update, on_ice_world_changed);
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct IceWorldParams {
     pub mesh_radius: f32,
     pub pixels: f32,
@@ -44,7 +46,7 @@ impl Default for IceWorldParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LandParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,
@@ -76,7 +78,7 @@ impl Default for LandParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LakeParams {
     pub time_speed_multiplier: f32,
     pub lake_cutoff: f32,
@@ -108,7 +110,7 @@ impl Default for LakeParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CloudParams {
     pub time_speed_multiplier: f32,
     pub cloud_cover: f32,

@@ -1,3 +1,4 @@
+use crate::bodies::PixelPlanet;
 use bevy::asset::{Asset, Assets};
 use bevy::color::{LinearRgba, Srgba};
 use bevy::math::Vec2;
@@ -17,7 +18,8 @@ pub fn build(app: &mut App) {
 }
 
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct AsteroidParams {
     pub mesh_radius: f32,
     pub pixels: f32,

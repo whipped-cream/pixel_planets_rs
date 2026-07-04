@@ -7,6 +7,7 @@ use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
+use crate::bodies::PixelPlanet;
 
 pub fn build(app: &mut App) {
     app
@@ -20,7 +21,8 @@ pub fn build(app: &mut App) {
     #[cfg(feature = "dynamic")]
     app.add_systems(Update, on_terran_changed);
 }
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct TerranParams {
     pub pixels: f32,
     pub mesh_radius: f32,
@@ -44,7 +46,7 @@ impl Default for TerranParams {
 
 // TODO: Move more things from the params into the Rivers which should be shared between the
 // TODO: cloud and land shaders
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RiversParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,
@@ -82,7 +84,7 @@ impl Default for RiversParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CloudParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,

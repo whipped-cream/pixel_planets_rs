@@ -4,6 +4,7 @@ use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
 use crate::bodies::building_blocks::craters::{Craters, CratersUniform};
 use crate::bodies::building_blocks::surface::{Surface, SurfaceUniform};
+use crate::bodies::PixelPlanet;
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Surface>>() {
@@ -22,7 +23,8 @@ pub fn build(app: &mut App) {
     app.add_systems(Update, on_lava_world_changed);
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct LavaWorldParams {
     pub mesh_radius: f32,
     pub pixels: f32,
@@ -46,7 +48,7 @@ impl Default for LavaWorldParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SurfaceParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,
@@ -78,7 +80,7 @@ impl Default for SurfaceParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CratersParams {
     // TODO: The pixels value is different on this one
     pub time_speed_multiplier: f32,
@@ -105,7 +107,7 @@ impl Default for CratersParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LavaRiversParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,

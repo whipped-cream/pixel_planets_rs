@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
+use crate::bodies::PixelPlanet;
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Clouds>>() {
@@ -13,13 +14,14 @@ pub fn build(app: &mut App) {
     app.add_systems(Update, on_stormy_gas_giant_changed);
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct StormyGasGiantParams {
     pub mesh_radius: f32,
     pub pixels: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
-    pub base_layer: CloudParams, // TODO: This comes from terran:: which is not correct
+    pub base_layer: CloudParams,
     pub storm_layer: CloudParams
 }
 impl Default for StormyGasGiantParams {
@@ -35,7 +37,7 @@ impl Default for StormyGasGiantParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CloudParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,

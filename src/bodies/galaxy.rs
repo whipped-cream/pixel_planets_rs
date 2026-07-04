@@ -1,5 +1,6 @@
 // TODO: Calling a galaxy a body is not really correct
 
+use crate::bodies::PixelPlanet;
 use bevy::asset::{Asset, Assets};
 use bevy::color::{LinearRgba, Srgba};
 use bevy::mesh::{Mesh, Mesh2d};
@@ -18,7 +19,8 @@ pub fn build(app: &mut App) {
 }
 
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct GalaxyParams {
     pub mesh_radius: f32,
     pub pixels: f32,

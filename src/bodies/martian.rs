@@ -6,6 +6,7 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
+use crate::bodies::PixelPlanet;
 
 pub fn build(app: &mut App) {
     app
@@ -17,7 +18,8 @@ pub fn build(app: &mut App) {
 }
 
 
-#[derive(Component)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct MartianParams {
     pub mesh_radius: f32,
     pub pixels: f32,

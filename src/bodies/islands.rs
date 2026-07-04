@@ -4,6 +4,7 @@ use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
 use crate::bodies::building_blocks::planetunder::{PlanetUnder, PlanetUnderUniform};
+use crate::bodies::PixelPlanet;
 
 pub fn build(app: &mut App) {
     app
@@ -22,7 +23,8 @@ pub fn build(app: &mut App) {
 }
 
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct IslandsParams {
     pub mesh_radius: f32, // TODO: I think this is a radius and pixels is a diameter and these should stay in sync
     pub pixels: f32,
@@ -46,7 +48,7 @@ impl Default for IslandsParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct OceanParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,
@@ -78,7 +80,7 @@ impl Default for OceanParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LandmassParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,
@@ -112,7 +114,7 @@ impl Default for LandmassParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CloudParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,

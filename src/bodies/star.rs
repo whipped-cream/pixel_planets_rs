@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
+use crate::bodies::PixelPlanet;
 
 pub fn build(app: &mut App) {
     app
@@ -16,7 +17,8 @@ pub fn build(app: &mut App) {
     app.add_systems(Update, on_star_changed);
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct StarParams {
     pub mesh_radius: f32,
     pub outer_mesh_radius: f32,
@@ -38,7 +40,7 @@ impl Default for StarParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BodyParams {
     pub time_speed_multiplier: f32,
     pub pixels: f32,
@@ -73,7 +75,7 @@ impl Default for BodyParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BlobParams {
     pub time_speed_multiplier: f32,
     pub pixels: f32,
@@ -103,7 +105,7 @@ impl Default for BlobParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FlareParams {
     pub time_speed_multiplier: f32,
     pub pixels: f32,

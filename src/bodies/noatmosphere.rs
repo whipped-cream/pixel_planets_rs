@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
 use crate::bodies::building_blocks::craters::{Craters, CratersUniform};
 use crate::bodies::building_blocks::surface::{Surface, SurfaceUniform};
+use crate::bodies::PixelPlanet;
 
 pub fn build(app: &mut App) {
     app
@@ -15,7 +16,8 @@ pub fn build(app: &mut App) {
     app.add_systems(Update, on_no_atmosphere_changed);
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct NoAtmosphereParams {
     pub mesh_radius: f32,
     pub pixels: f32,
@@ -37,7 +39,7 @@ impl Default for NoAtmosphereParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SurfaceParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,
@@ -69,7 +71,7 @@ impl Default for SurfaceParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CratersParams {
     // TODO: The pixels value for this one is different from the Surface.
     pub time_speed_multiplier: f32,

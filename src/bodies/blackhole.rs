@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
+use crate::bodies::PixelPlanet;
 
 pub fn build(app: &mut App) {
     app
@@ -15,7 +16,8 @@ pub fn build(app: &mut App) {
     app.add_systems(Update, on_black_hole_changed);
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct BlackHoleParams {
     pub mesh_radius: f32,
     pub accretion_disk_mesh_radius: f32,
@@ -37,7 +39,7 @@ impl Default for BlackHoleParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ShadowParams {
     pub pixels: f32,
     pub radius: f32,
@@ -59,7 +61,7 @@ impl Default for ShadowParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AccretionDiskParams {
     pub disk_width: f32,
     pub ring_perspective: f32,

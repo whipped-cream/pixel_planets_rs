@@ -14,6 +14,5 @@ pub mod blackhole;
 pub mod galaxy;
 pub mod star;
 
-#[derive(Component)]
-// #[require(Mesh2d, MeshMaterial2d<_>, Transform)]
-pub struct Body;
+#[derive(Component, Default)]
+pub struct PixelPlanet;

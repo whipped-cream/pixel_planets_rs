@@ -1,5 +1,6 @@
 // TODO: The rings on this shader dont quite match the Godot and I'm not 100% sure why
 // The rings on the Godot are rougher on the edges but this one makes very smooth edges.
+use crate::bodies::PixelPlanet;
 use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
@@ -17,7 +18,8 @@ pub fn build(app: &mut App) {
     app.add_systems(Update, on_banded_gas_giant_changed);
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
+#[require(PixelPlanet)]
 pub struct BandedGasGiantParams {
     pub mesh_radius: f32,
     pub ring_mesh_radius: f32,
@@ -39,7 +41,7 @@ impl Default for BandedGasGiantParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BaseParams {
     pub pixels: f32,
     pub time_speed_multiplier: f32,
@@ -89,7 +91,7 @@ impl Default for BaseParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RingParams {
     pub pixels: f32,
     pub time_speed_multiplier: f32,
