@@ -1,7 +1,7 @@
 #import bevy_sprite::mesh2d_view_bindings::globals
 #import bevy_sprite::mesh2d_vertex_output::VertexOutput
 
-#import "shaders/planet_common.wgsl"::{pixelize, rand, tiled_rand, spherify, fbm, rotate, dither}
+#import "shaders/planet_common.wgsl"::{pixelize, rand, tiled_rand, spherify, fbm, rotate, dither, compute_circle_mask}
 
 
 override fn "shaders/planet_common.wgsl"::rand(coord: vec2<f32>, seed: f32) -> f32 {
@@ -33,8 +33,8 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     let pixel_uv = pixelize(in.uv, u_params.pixels);
 
     let dith = dither(pixel_uv, in.uv, u_params.pixels);
-    // stepping over 0.5 instead of 0.49999 makes some pixels a little buggy
-    let a = step(length(pixel_uv - vec2f(0.5)), 0.49999);
+
+    let a = compute_circle_mask(pixel_uv);
 
     if (a == 0.0) {
         return vec4(0.);
