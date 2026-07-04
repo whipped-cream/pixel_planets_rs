@@ -85,7 +85,7 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     let uv_center_rotated = rotate(uv_center + vec2f(0., 0.5), globals.time * u_params.time_speed * 3.);
 
     // some noise
-    disk *= pow(fbm(uv_center * u_params.size, u_params.octaves, u_params.seed), 0.5);
+    disk *= pow(fbm(uv_center_rotated * u_params.size, u_params.octaves, u_params.seed), 0.5);
 
     // apply dithering
     if (dith && u_params.should_dither == 1) {
