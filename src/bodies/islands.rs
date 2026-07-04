@@ -61,7 +61,7 @@ pub struct OceanParams {
 impl Default for OceanParams {
     fn default() -> Self {
         OceanParams {
-            time_speed_multiplier: 0.1,
+            time_speed_multiplier: 0.02,
             rotation: 100.0,
             dither_size: Some(2.0),
             light_border_1: 0.4,
@@ -94,7 +94,7 @@ pub struct LandmassParams {
 impl Default for LandmassParams {
     fn default() -> Self {
         LandmassParams {
-            time_speed_multiplier: 0.2,
+            time_speed_multiplier: 0.02,
             rotation: 0.2,
             light_border_1: 0.32,
             light_border_2: 0.534,
@@ -129,7 +129,7 @@ pub struct CloudParams {
 impl Default for CloudParams {
     fn default() -> Self {
         CloudParams {
-            time_speed_multiplier: 0.47,
+            time_speed_multiplier: 0.01,
             rotation: 0.0,
             cloud_cover: 0.415,
             cloud_curve: 1.3,
@@ -251,7 +251,7 @@ impl From<&IslandsParams> for Landmass {
                 pixels: value.pixels,
                 rotation: value.landmass_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed * value.landmass_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.landmass_params.time_speed_multiplier * value.landmass_params.size.round() * 2.0,
                 light_border_1: value.landmass_params.light_border_1,
                 light_border_2: value.landmass_params.light_border_2,
                 land_cutoff: value.landmass_params.land_cutoff,
@@ -271,7 +271,7 @@ impl From<&IslandsParams> for PlanetUnder {
                 pixels: value.pixels,
                 rotation: value.ocean_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed * value.ocean_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.ocean_params.time_speed_multiplier * value.ocean_params.size.round() * 2.0,
                 dither_size: value.ocean_params.dither_size.unwrap_or(1.0),
                 light_border_1: value.ocean_params.light_border_1,
                 light_border_2: value.ocean_params.light_border_2,
@@ -293,7 +293,7 @@ impl From<&IslandsParams> for Clouds {
                 rotation: value.cloud_params.rotation,
                 cloud_cover: value.cloud_params.cloud_cover,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed * value.cloud_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.cloud_params.time_speed_multiplier * value.cloud_params.size.round() * 2.0,
                 stretch: value.cloud_params.stretch,
                 cloud_curve: value.cloud_params.cloud_curve,
                 light_border_1: value.cloud_params.light_border_1,

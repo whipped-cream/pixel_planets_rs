@@ -52,7 +52,7 @@ pub struct SurfaceParams {
 impl Default for SurfaceParams {
     fn default() -> Self {
         SurfaceParams {
-            time_speed_multiplier: 0.4,
+            time_speed_multiplier: 0.02,
             rotation: 0.0,
             dither_size: Some(2.0),
             light_border_1: 0.615,
@@ -83,7 +83,7 @@ pub struct CratersParams {
 impl Default for CratersParams {
     fn default() -> Self {
         CratersParams {
-            time_speed_multiplier: 0.001,
+            time_speed_multiplier: 0.02,
             rotation: 0.0,
             light_border: 0.465,
             colors: [
@@ -163,7 +163,7 @@ impl From<&NoAtmosphereParams> for Surface {
                 pixels: value.pixels,
                 rotation: value.surface_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed * value.surface_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.surface_params.time_speed_multiplier * value.surface_params.size.round() * 2.0,
                 dither_size: value.surface_params.dither_size.unwrap_or(1.0),
                 should_dither: if value.surface_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.surface_params.light_border_1,
@@ -184,7 +184,7 @@ impl From<&NoAtmosphereParams> for Craters {
                 pixels: value.pixels * 87.419 / 100.0,
                 rotation: value.craters_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed * value.craters_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.craters_params.time_speed_multiplier * value.craters_params.size.round() * 2.0,
                 light_border: value.craters_params.light_border,
                 colors: value.craters_params.colors.map(|c| c.to_linear()),
                 size: value.craters_params.size,

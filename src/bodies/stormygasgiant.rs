@@ -54,7 +54,7 @@ pub struct CloudParams {
 impl CloudParams {
     pub fn base_default() -> CloudParams {
         CloudParams {
-            time_speed_multiplier: 0.47,
+            time_speed_multiplier: 0.005,
             rotation: 0.0,
             cloud_cover: 0.0,
             cloud_curve: 1.3,
@@ -74,7 +74,7 @@ impl CloudParams {
     }
     pub fn storm_default() -> CloudParams {
         CloudParams {
-            time_speed_multiplier: 0.47,
+            time_speed_multiplier: 0.005,
             rotation: 0.0,
             cloud_cover: 0.538,
             cloud_curve: 1.3,
@@ -151,41 +151,41 @@ fn on_stormy_gas_giant_changed(
     }
 }
 
-fn make_base_layer(stormy_gas_giant_params: &StormyGasGiantParams) -> Clouds {
+fn make_base_layer(value: &StormyGasGiantParams) -> Clouds {
     Clouds {
         params: CloudsUniform {
-            pixels: stormy_gas_giant_params.pixels,
-            rotation: stormy_gas_giant_params.base_layer.rotation,
-            cloud_cover: stormy_gas_giant_params.base_layer.cloud_cover,
-            cloud_curve: stormy_gas_giant_params.base_layer.cloud_curve,
-            light_origin: stormy_gas_giant_params.light_origin,
-            time_speed: stormy_gas_giant_params.time_speed * stormy_gas_giant_params.base_layer.time_speed_multiplier,
-            stretch: stormy_gas_giant_params.base_layer.stretch,
-            light_border_1: stormy_gas_giant_params.base_layer.light_border_1,
-            light_border_2: stormy_gas_giant_params.base_layer.light_border_2,
-            colors: stormy_gas_giant_params.base_layer.colors.map(|c| c.to_linear()),
-            size: stormy_gas_giant_params.base_layer.size,
-            seed: stormy_gas_giant_params.base_layer.seed,
-            octaves: stormy_gas_giant_params.base_layer.octaves,
+            pixels: value.pixels,
+            rotation: value.base_layer.rotation,
+            cloud_cover: value.base_layer.cloud_cover,
+            cloud_curve: value.base_layer.cloud_curve,
+            light_origin: value.light_origin,
+            time_speed: value.time_speed * value.base_layer.time_speed_multiplier * value.base_layer.size.round() * 2.0,
+            stretch: value.base_layer.stretch,
+            light_border_1: value.base_layer.light_border_1,
+            light_border_2: value.base_layer.light_border_2,
+            colors: value.base_layer.colors.map(|c| c.to_linear()),
+            size: value.base_layer.size,
+            seed: value.base_layer.seed,
+            octaves: value.base_layer.octaves,
         }
     }
 }
-fn make_storm_layer(stormy_gas_giant_params: &StormyGasGiantParams) -> Clouds {
+fn make_storm_layer(value: &StormyGasGiantParams) -> Clouds {
     Clouds {
         params: CloudsUniform {
-            pixels: stormy_gas_giant_params.pixels,
-            rotation: stormy_gas_giant_params.storm_layer.rotation,
-            cloud_cover: stormy_gas_giant_params.storm_layer.cloud_cover,
-            cloud_curve: stormy_gas_giant_params.storm_layer.cloud_curve,
-            light_origin: stormy_gas_giant_params.light_origin,
-            time_speed: stormy_gas_giant_params.time_speed * stormy_gas_giant_params.storm_layer.time_speed_multiplier,
-            stretch: stormy_gas_giant_params.storm_layer.stretch,
-            light_border_1: stormy_gas_giant_params.storm_layer.light_border_1,
-            light_border_2: stormy_gas_giant_params.storm_layer.light_border_2,
-            colors: stormy_gas_giant_params.storm_layer.colors.map(|c| c.to_linear()),
-            size: stormy_gas_giant_params.storm_layer.size,
-            seed: stormy_gas_giant_params.storm_layer.size,
-            octaves: stormy_gas_giant_params.storm_layer.octaves,
+            pixels: value.pixels,
+            rotation: value.storm_layer.rotation,
+            cloud_cover: value.storm_layer.cloud_cover,
+            cloud_curve: value.storm_layer.cloud_curve,
+            light_origin: value.light_origin,
+            time_speed: value.time_speed * value.storm_layer.time_speed_multiplier * value.storm_layer.size.round() * 2.0,
+            stretch: value.storm_layer.stretch,
+            light_border_1: value.storm_layer.light_border_1,
+            light_border_2: value.storm_layer.light_border_2,
+            colors: value.storm_layer.colors.map(|c| c.to_linear()),
+            size: value.storm_layer.size,
+            seed: value.storm_layer.size,
+            octaves: value.storm_layer.octaves,
         }
     }
 }

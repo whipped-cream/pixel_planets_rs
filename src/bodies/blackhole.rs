@@ -80,7 +80,7 @@ impl Default for AccretionDiskParams {
             ring_perspective: 14.0,
             should_dither: true,
             pixels: 300.0,
-            time_speed_multiplier: 0.2,
+            time_speed_multiplier: 0.2 * 314.15 * 0.004,
             rotation: 0.766,
             colors: [
                 Srgba::hex("ffffeb").unwrap().into(),
@@ -218,7 +218,7 @@ impl From<&BlackHoleParams> for AccretionDisk {
                 pixels: value.accretion_disk_params.pixels,
                 rotation: value.accretion_disk_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed * value.time_speed,
+                time_speed: value.time_speed * value.accretion_disk_params.time_speed_multiplier, // This is deliberately different from the others because this is what the Godot shader does. Might make it the same later on
                 disk_width: value.accretion_disk_params.disk_width,
                 ring_perspective: value.accretion_disk_params.ring_perspective,
                 should_dither: if value.accretion_disk_params.should_dither { 1 } else { 0 },

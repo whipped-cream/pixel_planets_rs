@@ -62,7 +62,7 @@ impl Default for BaseParams {
     fn default() -> Self {
         BaseParams {
             pixels: 100.0,
-            time_speed_multiplier: 0.05,
+            time_speed_multiplier: 0.004,
             rotation: 0.0,
             cloud_cover: 0.61,
             cloud_curve: 1.376,
@@ -110,7 +110,7 @@ impl Default for RingParams {
     fn default() -> Self {
         RingParams {
             pixels: 300.0,
-            time_speed_multiplier: 0.2,
+            time_speed_multiplier: 314.15 * 0.004 * 0.2,
             rotation: 0.7,
             light_border_1: 0.52,
             light_border_2: 0.62,
@@ -235,7 +235,7 @@ impl From<&BandedGasGiantParams> for Base {
                 light_origin: value.light_origin,
                 cloud_cover: value.base_layer_params.cloud_cover,
                 cloud_curve: value.base_layer_params.cloud_curve,
-                time_speed: value.time_speed * value.base_layer_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.base_layer_params.time_speed_multiplier * value.base_layer_params.size.round() * 2.0,
                 stretch: value.base_layer_params.stretch,
                 light_border_1: value.base_layer_params.light_border_1,
                 light_border_2: value.base_layer_params.light_border_2,
@@ -285,7 +285,7 @@ impl From<&BandedGasGiantParams> for Ring {
                 pixels: value.ring_params.pixels,
                 rotation: value.ring_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed * value.ring_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.ring_params.time_speed_multiplier, // This is deliberately different from the others to match the Godot
                 light_border_1: value.ring_params.light_border_1,
                 light_border_2: value.ring_params.light_border_2,
                 ring_width: value.ring_params.ring_width,

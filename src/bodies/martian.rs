@@ -44,7 +44,7 @@ impl Default for MartianParams {
             light_border_1: 0.362,
             light_border_2: 0.525,
             time_speed: 1.0,
-            time_speed_multiplier: 0.1,
+            time_speed_multiplier: 0.02,
             dither_size: Some(2.0),
             colors: [
                 Srgba::hex("ff8933").unwrap().into(),
@@ -142,7 +142,7 @@ impl From<&MartianParams> for Martian {
                 light_origin: value.light_origin,
                 light_border_1: value.light_border_1,
                 light_border_2: value.light_border_2,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.time_speed_multiplier * value.size.round() * 2.0,
                 dither_size: value.dither_size.unwrap_or(1.0),
                 should_dither: if value.dither_size.is_some() { 1 } else { 0 },
                 colors: value.colors.map(|c| c.to_linear()),

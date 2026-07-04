@@ -54,7 +54,7 @@ pub struct BodyParams {
 impl Default for BodyParams {
     fn default() -> Self {
         BodyParams {
-            time_speed_multiplier: 0.05,
+            time_speed_multiplier: 0.005,
             pixels: 100.0,
             rotation: 0.0,
             colors: [
@@ -88,7 +88,7 @@ pub struct BlobParams {
 impl Default for BlobParams {
     fn default() -> Self {
         BlobParams {
-            time_speed_multiplier: 0.05,
+            time_speed_multiplier: 0.01,
             pixels: 200.0,
             rotation: 0.0,
             circle_amount: 2.0,
@@ -122,7 +122,7 @@ pub struct FlareParams {
 impl Default for FlareParams {
     fn default() -> Self {
         FlareParams {
-            time_speed_multiplier: 0.05,
+            time_speed_multiplier: 0.015,
             pixels: 200.0,
             rotation: 0.0,
             should_dither: true,
@@ -244,7 +244,7 @@ impl From<&StarParams> for Body {
         Body {
             params: BodyUniform {
                 pixels: value.body_params.pixels,
-                time_speed: value.time_speed * value.body_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.body_params.time_speed_multiplier * value.body_params.size.round() * 2.0,
                 rotation: value.body_params.rotation,
                 colors: value.body_params.colors.map(|c| c.to_linear()),
                 num_colors: value.body_params.num_colors,
@@ -283,7 +283,7 @@ impl From<&StarParams> for Blobs {
         Blobs {
             params: BlobUniform {
                 pixels: value.blob_params.pixels,
-                time_speed: value.time_speed * value.blob_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.blob_params.time_speed_multiplier * value.blob_params.size.round() * 2.0,
                 rotation: value.blob_params.rotation,
                 circle_amount: value.blob_params.circle_amount,
                 circle_size: value.blob_params.circle_size,
@@ -325,7 +325,7 @@ impl From<&StarParams> for Flares {
         Flares {
             params: FlareUniform {
                 pixels: value.flare_params.pixels,
-                time_speed: value.time_speed * value.flare_params.time_speed_multiplier,
+                time_speed: value.time_speed * value.flare_params.time_speed_multiplier * value.flare_params.size.round() * 2.0,
                 rotation: value.flare_params.rotation,
                 should_dither: if value.flare_params.should_dither { 1 } else { 0 },
                 storm_width: value.flare_params.storm_width,

@@ -44,7 +44,7 @@ impl Default for GalaxyParams {
             pixels: 200.0,
             rotation: 0.674,
             time_speed: -1.0, // Changed from Godot because clockwise looks nicer than anticlockwise IMO
-            time_speed_multiplier: 1.0,
+            time_speed_multiplier: 0.04,
             dither_size: Some(2.0),
             colors: [
                 Srgba::hex("ffffeb").unwrap().into(),
@@ -144,7 +144,7 @@ impl From<&GalaxyParams> for Galaxy {
             params: GalaxyUniform {
                 pixels: value.pixels,
                 rotation: value.rotation,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.time_speed_multiplier * value.size.round() * 2.0,
                 dither_size: value.dither_size.unwrap_or(1.0),
                 should_dither: if value.dither_size.is_some() { 1 } else { 0 },
                 colors: value.colors.map(|c| c.to_linear()),
