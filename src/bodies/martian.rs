@@ -27,7 +27,8 @@ pub struct MartianParams {
     pub light_border_2: f32,
     pub time_speed: f32,
     pub dither_size: Option<f32>,
-    pub colors: Vec<LinearRgba>,
+    pub colors: [Color; 5],
+    pub num_colors: u32,
     pub size: f32,
     pub seed: f32,
     pub octaves: u32
@@ -43,13 +44,14 @@ impl Default for MartianParams {
             light_border_2: 0.525,
             time_speed: 0.1,
             dither_size: Some(2.0),
-            colors: vec![
+            colors: [
                 Srgba::hex("ff8933").unwrap().into(),
                 Srgba::hex("e64539").unwrap().into(),
                 Srgba::hex("ad2f45").unwrap().into(),
                 Srgba::hex("52333f").unwrap().into(),
                 Srgba::hex("3d2936").unwrap().into(),
             ],
+            num_colors: 5,
             size: 8.0,
             seed: 1.175,
             octaves: 3,
@@ -141,8 +143,8 @@ impl From<&MartianParams> for Martian {
                 time_speed: value.time_speed,
                 dither_size: value.dither_size.unwrap_or(1.0),
                 should_dither: if value.dither_size.is_some() { 1 } else { 0 },
-                colors: make_color_array(&value.colors),
-                num_colors: value.colors.len() as u32,
+                colors: value.colors.map(|c| c.to_linear()),
+                num_colors: value.num_colors,
                 size: value.size,
                 seed: value.seed,
                 octaves: value.octaves,
@@ -150,13 +152,13 @@ impl From<&MartianParams> for Martian {
         }
     }
 }
-fn make_color_array(value: &Vec<LinearRgba>) -> [LinearRgba; 5] {
-    if value.len() > 5 {
-        warn!("Number of colors for Martian must be less than 5!")
-    }
-    let mut array = [Srgba::new(0.0, 0.0, 0.0, 0.0).into(); 5];
-    for (index, color) in value.iter().enumerate().take(5) {
-        array[index] = *color;
-    }
-    array
-}
+// fn make_color_array(value: &Vec<LinearRgba>) -> [LinearRgba; 5] {
+//     if value.len() > 5 {
+//         warn!("Number of colors for Martian must be less than 5!")
+//     }
+//     let mut array = [Srgba::new(0.0, 0.0, 0.0, 0.0).into(); 5];
+//     for (index, color) in value.iter().enumerate().take(5) {
+//         array[index] = *color;
+//     }
+//     array
+// }

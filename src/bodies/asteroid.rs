@@ -24,7 +24,7 @@ pub struct AsteroidParams {
     pub should_dither: bool,
     pub rotation: f32,
     pub light_origin: Vec2,
-    pub colors: [LinearRgba; 3],
+    pub colors: [Color; 3],
     pub size: f32,
     pub seed: f32,
     pub octaves: u32
@@ -120,7 +120,7 @@ impl From<&AsteroidParams> for Asteroid {
                 rotation: value.rotation,
                 light_origin: value.light_origin,
                 should_dither: if value.should_dither { 1 } else { 0 },
-                colors: value.colors,
+                colors: value.colors.map(|c| c.to_linear()),
                 size: value.size,
                 seed: value.seed,
                 octaves: value.octaves,

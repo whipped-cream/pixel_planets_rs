@@ -52,7 +52,7 @@ pub struct SurfaceParams {
     pub dither_size: Option<f32>,
     pub light_border_1: f32,
     pub light_border_2: f32,
-    pub colors: [LinearRgba; 3],
+    pub colors: [Color; 3],
     pub size: f32,
     pub seed: f32,
     pub octaves: u32
@@ -81,7 +81,7 @@ pub struct CratersParams {
     // TODO: The pixels value for this one is different from the Surface. The time speed too
     pub rotation: f32,
     pub light_border: f32,
-    pub colors: [LinearRgba; 2],
+    pub colors: [Color; 2],
     pub size: f32,
     pub seed: f32,
     // pub octaves: f32
@@ -103,14 +103,14 @@ impl Default for CratersParams {
 
 #[derive(Debug)]
 pub struct LavaRiversParams {
-    rotation: f32,
-    light_border_1: f32,
-    light_border_2: f32,
-    river_cutoff: f32,
-    colors: [LinearRgba; 3],
-    size: f32,
-    seed: f32,
-    octaves: u32,
+    pub rotation: f32,
+    pub light_border_1: f32,
+    pub light_border_2: f32,
+    pub river_cutoff: f32,
+    pub colors: [Color; 3],
+    pub size: f32,
+    pub seed: f32,
+    pub octaves: u32,
 }
 impl Default for LavaRiversParams {
     fn default() -> Self {
@@ -216,7 +216,7 @@ impl From<&LavaWorldParams> for Surface {
                 should_dither: if value.surface_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.surface_params.light_border_1,
                 light_border_2: value.surface_params.light_border_2,
-                colors: value.surface_params.colors,
+                colors: value.surface_params.colors.map(|c| c.to_linear()),
                 size: value.surface_params.size,
                 seed: value.surface_params.seed,
                 octaves: value.surface_params.octaves,
@@ -234,7 +234,7 @@ impl From<&LavaWorldParams> for Craters {
                 light_origin: value.light_origin,
                 time_speed: value.time_speed,
                 light_border: value.craters_params.light_border,
-                colors: value.craters_params.colors,
+                colors: value.craters_params.colors.map(|c| c.to_linear()),
                 size: value.craters_params.size,
                 seed: value.craters_params.seed,
             }
@@ -275,7 +275,7 @@ impl From<&LavaWorldParams> for Rivers {
                 light_border_1: value.lava_rivers_params.light_border_1,
                 light_border_2: value.lava_rivers_params.light_border_2,
                 river_cutoff: value.lava_rivers_params.river_cutoff,
-                colors: value.lava_rivers_params.colors,
+                colors: value.lava_rivers_params.colors.map(|c| c.to_linear()),
                 size: value.lava_rivers_params.size,
                 seed: value.lava_rivers_params.seed,
                 octaves: value.lava_rivers_params.octaves,

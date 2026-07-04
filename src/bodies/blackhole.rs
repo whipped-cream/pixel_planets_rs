@@ -42,7 +42,7 @@ pub struct ShadowParams {
     pub pixels: f32,
     pub radius: f32,
     pub light_width: f32,
-    pub colors: [LinearRgba; 3],
+    pub colors: [Color; 3],
 }
 impl Default for ShadowParams {
     fn default() -> Self {
@@ -66,7 +66,7 @@ pub struct AccretionDiskParams {
     pub should_dither: bool,
     pub pixels: f32,
     pub rotation: f32,
-    pub colors: [LinearRgba; 5],
+    pub colors: [Color; 5],
     pub num_colors: u32,
     pub size: f32,
     pub seed: f32,
@@ -178,7 +178,7 @@ impl From<&BlackHoleParams> for Shadow {
         Shadow {
             params: ShadowUniform {
                 pixels: value.shadow_params.pixels,
-                colors: value.shadow_params.colors,
+                colors: value.shadow_params.colors.map(|c| c.to_linear()),
                 radius: value.shadow_params.radius,
                 light_width: value.shadow_params.light_width,
             }
@@ -220,7 +220,7 @@ impl From<&BlackHoleParams> for AccretionDisk {
                 disk_width: value.accretion_disk_params.disk_width,
                 ring_perspective: value.accretion_disk_params.ring_perspective,
                 should_dither: if value.accretion_disk_params.should_dither { 1 } else { 0 },
-                colors: value.accretion_disk_params.colors,
+                colors: value.accretion_disk_params.colors.map(|c| c.to_linear()),
                 num_colors: value.accretion_disk_params.num_colors,
                 size: value.accretion_disk_params.size,
                 seed: value.accretion_disk_params.seed,

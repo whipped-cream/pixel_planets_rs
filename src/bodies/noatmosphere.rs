@@ -43,7 +43,7 @@ pub struct SurfaceParams {
     pub dither_size: Option<f32>,
     pub light_border_1: f32,
     pub light_border_2: f32,
-    pub colors: [LinearRgba; 3],
+    pub colors: [Color; 3],
     pub size: f32,
     pub seed: f32,
     pub octaves: u32
@@ -72,7 +72,7 @@ pub struct CratersParams {
     // TODO: The pixels value for this one is different from the Surface. The time speed too
     pub rotation: f32,
     pub light_border: f32,
-    pub colors: [LinearRgba; 2],
+    pub colors: [Color; 2],
     pub size: f32,
     pub seed: f32,
     // pub octaves: f32
@@ -164,7 +164,7 @@ impl From<&NoAtmosphereParams> for Surface {
                 should_dither: if value.surface_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.surface_params.light_border_1,
                 light_border_2: value.surface_params.light_border_2,
-                colors: value.surface_params.colors,
+                colors: value.surface_params.colors.map(|c| c.to_linear()),
                 size: value.surface_params.size,
                 seed: value.surface_params.seed,
                 octaves: value.surface_params.octaves,
@@ -182,7 +182,7 @@ impl From<&NoAtmosphereParams> for Craters {
                 light_origin: value.light_origin,
                 time_speed: value.time_speed,
                 light_border: value.craters_params.light_border,
-                colors: value.craters_params.colors,
+                colors: value.craters_params.colors.map(|c| c.to_linear()),
                 size: value.craters_params.size,
                 seed: value.craters_params.seed,
             }

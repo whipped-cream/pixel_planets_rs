@@ -20,7 +20,7 @@ pub struct StormyGasGiantParams {
     pub pixels: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
-    pub base_layer: CloudParams,
+    pub base_layer: CloudParams, // TODO: This comes from terran:: which is not correct
     pub storm_layer: CloudParams
 }
 impl Default for StormyGasGiantParams {
@@ -144,7 +144,7 @@ fn make_base_layer(stormy_gas_giant_params: &StormyGasGiantParams) -> Clouds {
             stretch: stormy_gas_giant_params.base_layer.stretch,
             light_border_1: stormy_gas_giant_params.base_layer.light_border_1,
             light_border_2: stormy_gas_giant_params.base_layer.light_border_2,
-            colors: stormy_gas_giant_params.base_layer.colors,
+            colors: stormy_gas_giant_params.base_layer.colors.map(|c| c.to_linear()),
             size: stormy_gas_giant_params.base_layer.size,
             seed: stormy_gas_giant_params.base_layer.seed,
             octaves: stormy_gas_giant_params.base_layer.octaves,
@@ -163,7 +163,7 @@ fn make_storm_layer(stormy_gas_giant_params: &StormyGasGiantParams) -> Clouds {
             stretch: stormy_gas_giant_params.storm_layer.stretch,
             light_border_1: stormy_gas_giant_params.storm_layer.light_border_1,
             light_border_2: stormy_gas_giant_params.storm_layer.light_border_2,
-            colors: stormy_gas_giant_params.storm_layer.colors,
+            colors: stormy_gas_giant_params.storm_layer.colors.map(|c| c.to_linear()),
             size: stormy_gas_giant_params.storm_layer.size,
             seed: stormy_gas_giant_params.storm_layer.size,
             octaves: stormy_gas_giant_params.storm_layer.octaves,

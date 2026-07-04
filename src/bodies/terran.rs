@@ -51,7 +51,7 @@ pub struct RiversParams {
     pub light_border_1: f32,
     pub light_border_2: f32,
     pub river_cutoff: f32,
-    pub colors: [LinearRgba; 6],
+    pub colors: [Color; 6],
     pub size: f32,
     pub seed: f32,
     pub octaves: u32,
@@ -84,16 +84,12 @@ impl Default for RiversParams {
 pub struct CloudParams {
     pub rotation: f32,
     // pub time_speed: f32,
-
     pub cloud_cover: f32,
     pub cloud_curve: f32,
-
     pub stretch: f32,
-
     pub light_border_1: f32,
     pub light_border_2: f32,
-
-    pub colors: [LinearRgba; 4],
+    pub colors: [Color; 4],
     pub size: f32,
     pub seed: f32,
     pub octaves: u32,
@@ -220,7 +216,7 @@ impl From<&TerranParams> for Land {
                 light_border_1: value.land_params.light_border_1,
                 light_border_2: value.land_params.light_border_2,
                 river_cutoff: value.land_params.river_cutoff,
-                colors: value.land_params.colors.clone(),
+                colors: value.land_params.colors.map(|c| c.to_linear()),
                 size: value.land_params.size,
                 seed: value.land_params.seed,
                 octaves: value.land_params.octaves,
@@ -242,7 +238,7 @@ impl From<&TerranParams> for Clouds {
                 cloud_curve: value.cloud_params.cloud_curve,
                 light_border_1: value.cloud_params.light_border_1,
                 light_border_2: value.cloud_params.light_border_2,
-                colors: value.cloud_params.colors.clone(),
+                colors: value.cloud_params.colors.map(|c| c.to_linear()),
                 size: value.cloud_params.size,
                 seed: value.cloud_params.seed,
                 octaves: value.cloud_params.octaves,
