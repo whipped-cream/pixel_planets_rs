@@ -30,7 +30,7 @@ impl Default for StarParams {
         StarParams {
             mesh_radius: 100.0,
             outer_mesh_radius: 200.0,
-            time_speed: 0.05,
+            time_speed: 1.0,
             body_params: Default::default(),
             blob_params: Default::default(),
             flare_params: Default::default()
@@ -40,6 +40,7 @@ impl Default for StarParams {
 
 #[derive(Debug)]
 pub struct BodyParams {
+    pub time_speed_multiplier: f32,
     pub pixels: f32,
     pub rotation: f32,
     pub colors: [Color; 4],
@@ -53,6 +54,7 @@ pub struct BodyParams {
 impl Default for BodyParams {
     fn default() -> Self {
         BodyParams {
+            time_speed_multiplier: 0.05,
             pixels: 100.0,
             rotation: 0.0,
             colors: [
@@ -73,6 +75,7 @@ impl Default for BodyParams {
 
 #[derive(Debug)]
 pub struct BlobParams {
+    pub time_speed_multiplier: f32,
     pub pixels: f32,
     pub rotation: f32,
     pub circle_amount: f32,
@@ -85,6 +88,7 @@ pub struct BlobParams {
 impl Default for BlobParams {
     fn default() -> Self {
         BlobParams {
+            time_speed_multiplier: 0.05,
             pixels: 200.0,
             rotation: 0.0,
             circle_amount: 2.0,
@@ -101,6 +105,7 @@ impl Default for BlobParams {
 
 #[derive(Debug)]
 pub struct FlareParams {
+    pub time_speed_multiplier: f32,
     pub pixels: f32,
     pub rotation: f32,
     pub should_dither: bool,
@@ -117,6 +122,7 @@ pub struct FlareParams {
 impl Default for FlareParams {
     fn default() -> Self {
         FlareParams {
+            time_speed_multiplier: 0.05,
             pixels: 200.0,
             rotation: 0.0,
             should_dither: true,
@@ -238,7 +244,7 @@ impl From<&StarParams> for Body {
         Body {
             params: BodyUniform {
                 pixels: value.body_params.pixels,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.body_params.time_speed_multiplier,
                 rotation: value.body_params.rotation,
                 colors: value.body_params.colors.map(|c| c.to_linear()),
                 num_colors: value.body_params.num_colors,
@@ -277,7 +283,7 @@ impl From<&StarParams> for Blobs {
         Blobs {
             params: BlobUniform {
                 pixels: value.blob_params.pixels,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.blob_params.time_speed_multiplier,
                 rotation: value.blob_params.rotation,
                 circle_amount: value.blob_params.circle_amount,
                 circle_size: value.blob_params.circle_size,
@@ -319,7 +325,7 @@ impl From<&StarParams> for Flares {
         Flares {
             params: FlareUniform {
                 pixels: value.flare_params.pixels,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.flare_params.time_speed_multiplier,
                 rotation: value.flare_params.rotation,
                 should_dither: if value.flare_params.should_dither { 1 } else { 0 },
                 storm_width: value.flare_params.storm_width,

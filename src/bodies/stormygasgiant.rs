@@ -28,7 +28,7 @@ impl Default for StormyGasGiantParams {
         StormyGasGiantParams {
             mesh_radius: 100.0,
             pixels: 100.0,
-            time_speed: 0.47,
+            time_speed: 1.0,
             light_origin: Vec2::new(0.25, 0.25),
             base_layer: base_default(),
             storm_layer: storm_default(),
@@ -38,6 +38,7 @@ impl Default for StormyGasGiantParams {
 
 pub fn base_default() -> CloudParams {
     CloudParams {
+        time_speed_multiplier: 0.47,
         rotation: 0.0,
         cloud_cover: 0.0,
         cloud_curve: 1.3,
@@ -57,6 +58,7 @@ pub fn base_default() -> CloudParams {
 }
 pub fn storm_default() -> CloudParams {
     CloudParams {
+        time_speed_multiplier: 0.47,
         rotation: 0.0,
         cloud_cover: 0.538,
         cloud_curve: 1.3,
@@ -140,7 +142,7 @@ fn make_base_layer(stormy_gas_giant_params: &StormyGasGiantParams) -> Clouds {
             cloud_cover: stormy_gas_giant_params.base_layer.cloud_cover,
             cloud_curve: stormy_gas_giant_params.base_layer.cloud_curve,
             light_origin: stormy_gas_giant_params.light_origin,
-            time_speed: stormy_gas_giant_params.time_speed,
+            time_speed: stormy_gas_giant_params.time_speed * stormy_gas_giant_params.base_layer.time_speed_multiplier,
             stretch: stormy_gas_giant_params.base_layer.stretch,
             light_border_1: stormy_gas_giant_params.base_layer.light_border_1,
             light_border_2: stormy_gas_giant_params.base_layer.light_border_2,
@@ -159,7 +161,7 @@ fn make_storm_layer(stormy_gas_giant_params: &StormyGasGiantParams) -> Clouds {
             cloud_cover: stormy_gas_giant_params.storm_layer.cloud_cover,
             cloud_curve: stormy_gas_giant_params.storm_layer.cloud_curve,
             light_origin: stormy_gas_giant_params.light_origin,
-            time_speed: stormy_gas_giant_params.time_speed,
+            time_speed: stormy_gas_giant_params.time_speed * stormy_gas_giant_params.storm_layer.time_speed_multiplier,
             stretch: stormy_gas_giant_params.storm_layer.stretch,
             light_border_1: stormy_gas_giant_params.storm_layer.light_border_1,
             light_border_2: stormy_gas_giant_params.storm_layer.light_border_2,

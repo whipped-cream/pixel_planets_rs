@@ -34,7 +34,7 @@ impl Default for TerranParams {
         TerranParams {
             pixels: 100.0,
             mesh_radius: 100.0,
-            time_speed: 0.1,
+            time_speed: 1.0,
             light_origin: vec2(0.39, 0.39),
             land_params: RiversParams::default(),
             cloud_params: cloud_default()
@@ -46,6 +46,7 @@ impl Default for TerranParams {
 // TODO: cloud and land shaders
 #[derive(Debug)]
 pub struct RiversParams {
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub dither_size: Option<f32>,
     pub light_border_1: f32,
@@ -59,6 +60,7 @@ pub struct RiversParams {
 impl Default for RiversParams {
     fn default() -> Self {
         RiversParams {
+            time_speed_multiplier: 0.1,
             rotation: 0.2,
             // time_speed: 0.1,
             dither_size: Some(3.951),
@@ -82,6 +84,7 @@ impl Default for RiversParams {
 
 #[derive(Debug)]
 pub struct CloudParams {
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     // pub time_speed: f32,
     pub cloud_cover: f32,
@@ -96,6 +99,7 @@ pub struct CloudParams {
 }
 fn cloud_default() -> CloudParams {
     CloudParams {
+        time_speed_multiplier: 0.1,
         rotation: 0.0,
         // time_speed: 0.1,
         cloud_cover: 0.47,
@@ -210,7 +214,7 @@ impl From<&TerranParams> for Land {
                 pixels: value.pixels,
                 rotation: value.land_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.land_params.time_speed_multiplier,
                 dither_size: value.land_params.dither_size.unwrap_or(1.0),
                 should_dither: if value.land_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.land_params.light_border_1,
@@ -233,7 +237,7 @@ impl From<&TerranParams> for Clouds {
                 rotation: value.cloud_params.rotation,
                 cloud_cover: value.cloud_params.cloud_cover,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.cloud_params.time_speed_multiplier,
                 stretch: value.cloud_params.stretch,
                 cloud_curve: value.cloud_params.cloud_curve,
                 light_border_1: value.cloud_params.light_border_1,

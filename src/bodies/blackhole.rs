@@ -29,7 +29,7 @@ impl Default for BlackHoleParams {
         BlackHoleParams {
             mesh_radius: 100.0,
             accretion_disk_mesh_radius: 300.0,
-            time_speed: 0.2,
+            time_speed: 1.0,
             light_origin: Vec2::new(0.607, 0.444),
             shadow_params: Default::default(),
             accretion_disk_params: Default::default(),
@@ -65,6 +65,7 @@ pub struct AccretionDiskParams {
     pub ring_perspective: f32,
     pub should_dither: bool,
     pub pixels: f32,
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub colors: [Color; 5],
     pub num_colors: u32,
@@ -79,6 +80,7 @@ impl Default for AccretionDiskParams {
             ring_perspective: 14.0,
             should_dither: true,
             pixels: 300.0,
+            time_speed_multiplier: 0.2,
             rotation: 0.766,
             colors: [
                 Srgba::hex("ffffeb").unwrap().into(),
@@ -216,7 +218,7 @@ impl From<&BlackHoleParams> for AccretionDisk {
                 pixels: value.accretion_disk_params.pixels,
                 rotation: value.accretion_disk_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.time_speed,
                 disk_width: value.accretion_disk_params.disk_width,
                 ring_perspective: value.accretion_disk_params.ring_perspective,
                 should_dither: if value.accretion_disk_params.should_dither { 1 } else { 0 },

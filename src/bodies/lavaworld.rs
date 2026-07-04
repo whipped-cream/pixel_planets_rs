@@ -37,7 +37,7 @@ impl Default for LavaWorldParams {
         LavaWorldParams {
             mesh_radius: 100.0,
             pixels: 100.0,
-            time_speed: 0.2,
+            time_speed: 1.0,
             light_origin: Vec2::new(0.3, 0.3),
             surface_params: Default::default(),
             craters_params: Default::default(),
@@ -48,6 +48,7 @@ impl Default for LavaWorldParams {
 
 #[derive(Debug)]
 pub struct SurfaceParams {
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub dither_size: Option<f32>,
     pub light_border_1: f32,
@@ -60,6 +61,7 @@ pub struct SurfaceParams {
 impl Default for SurfaceParams {
     fn default() -> Self {
         SurfaceParams {
+            time_speed_multiplier: 0.2,
             rotation: 0.0,
             dither_size: Some(2.0),
             light_border_1: 0.4,
@@ -78,7 +80,8 @@ impl Default for SurfaceParams {
 
 #[derive(Debug)]
 pub struct CratersParams {
-    // TODO: The pixels value for this one is different from the Surface. The time speed too
+    // TODO: The pixels value is different on this one
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub light_border: f32,
     pub colors: [Color; 2],
@@ -89,6 +92,7 @@ pub struct CratersParams {
 impl Default for CratersParams {
     fn default() -> Self {
         CratersParams {
+            time_speed_multiplier: 0.2,
             rotation: 0.0,
             light_border: 0.4,
             colors: [
@@ -103,6 +107,7 @@ impl Default for CratersParams {
 
 #[derive(Debug)]
 pub struct LavaRiversParams {
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub light_border_1: f32,
     pub light_border_2: f32,
@@ -115,6 +120,7 @@ pub struct LavaRiversParams {
 impl Default for LavaRiversParams {
     fn default() -> Self {
         LavaRiversParams {
+            time_speed_multiplier: 0.2,
             rotation: 0.0,
             light_border_1: 0.019,
             light_border_2: 0.036,
@@ -211,7 +217,7 @@ impl From<&LavaWorldParams> for Surface {
                 pixels: value.pixels,
                 rotation: value.surface_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.surface_params.time_speed_multiplier,
                 dither_size: value.surface_params.dither_size.unwrap_or(1.0),
                 should_dither: if value.surface_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.surface_params.light_border_1,
@@ -232,7 +238,7 @@ impl From<&LavaWorldParams> for Craters {
                 pixels: value.pixels * 87.419 / 100.0,
                 rotation: value.craters_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.craters_params.time_speed_multiplier,
                 light_border: value.craters_params.light_border,
                 colors: value.craters_params.colors.map(|c| c.to_linear()),
                 size: value.craters_params.size,
@@ -271,7 +277,7 @@ impl From<&LavaWorldParams> for Rivers {
                 pixels: value.pixels,
                 rotation: value.lava_rivers_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.lava_rivers_params.time_speed_multiplier,
                 light_border_1: value.lava_rivers_params.light_border_1,
                 light_border_2: value.lava_rivers_params.light_border_2,
                 river_cutoff: value.lava_rivers_params.river_cutoff,

@@ -26,6 +26,7 @@ pub struct MartianParams {
     pub light_border_1: f32,
     pub light_border_2: f32,
     pub time_speed: f32,
+    pub time_speed_multiplier: f32,
     pub dither_size: Option<f32>,
     pub colors: [Color; 5],
     pub num_colors: u32,
@@ -42,7 +43,8 @@ impl Default for MartianParams {
             light_origin: Vec2::new(0.4, 0.3),
             light_border_1: 0.362,
             light_border_2: 0.525,
-            time_speed: 0.1,
+            time_speed: 1.0,
+            time_speed_multiplier: 0.1,
             dither_size: Some(2.0),
             colors: [
                 Srgba::hex("ff8933").unwrap().into(),

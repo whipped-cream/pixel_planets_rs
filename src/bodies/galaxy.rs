@@ -24,6 +24,7 @@ pub struct GalaxyParams {
     pub pixels: f32,
     pub rotation: f32,
     pub time_speed: f32,
+    pub time_speed_multiplier: f32,
     pub dither_size: Option<f32>,
     pub colors: [Color; 7],
     pub num_colors: u32,
@@ -43,6 +44,7 @@ impl Default for GalaxyParams {
             pixels: 200.0,
             rotation: 0.674,
             time_speed: -1.0, // Changed from Godot because clockwise looks nicer than anticlockwise IMO
+            time_speed_multiplier: 1.0,
             dither_size: Some(2.0),
             colors: [
                 Srgba::hex("ffffeb").unwrap().into(),

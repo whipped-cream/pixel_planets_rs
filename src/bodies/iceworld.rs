@@ -35,7 +35,7 @@ impl Default for IceWorldParams {
         IceWorldParams {
             mesh_radius: 100.0,
             pixels: 100.0,
-            time_speed: 0.25,
+            time_speed: 1.0,
             light_origin: Vec2::new(0.3, 0.3),
             land_params: Default::default(),
             lake_params: Default::default(),
@@ -46,6 +46,7 @@ impl Default for IceWorldParams {
 
 #[derive(Debug)]
 pub struct LandParams {
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub dither_size: Option<f32>,
     pub light_border_1: f32,
@@ -58,6 +59,7 @@ pub struct LandParams {
 impl Default for LandParams {
     fn default() -> Self {
         LandParams {
+            time_speed_multiplier: 0.25,
             rotation: 0.0,
             dither_size: Some(2.0),
             light_border_1: 0.48,
@@ -76,6 +78,7 @@ impl Default for LandParams {
 
 #[derive(Debug)]
 pub struct LakeParams {
+    pub time_speed_multiplier: f32,
     pub lake_cutoff: f32,
     pub rotation: f32,
     pub light_border_1: f32,
@@ -88,6 +91,7 @@ pub struct LakeParams {
 impl Default for LakeParams {
     fn default() -> Self {
         LakeParams {
+            time_speed_multiplier: 0.2,
             lake_cutoff: 0.55,
             rotation: 0.0,
             light_border_1: 0.024,
@@ -106,6 +110,7 @@ impl Default for LakeParams {
 
 #[derive(Debug)]
 pub struct CloudParams {
+    pub time_speed_multiplier: f32,
     pub cloud_cover: f32,
     pub cloud_curve: f32,
     pub stretch: f32,
@@ -120,6 +125,7 @@ pub struct CloudParams {
 impl Default for CloudParams {
     fn default() -> Self {
         CloudParams {
+            time_speed_multiplier: 0.1,
             cloud_cover: 0.546,
             cloud_curve: 1.3,
             stretch: 2.5,
@@ -218,7 +224,7 @@ impl From<&IceWorldParams> for PlanetUnder {
                 pixels: value.pixels,
                 rotation: value.land_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.land_params.time_speed_multiplier,
                 dither_size: value.land_params.dither_size.unwrap_or(1.0),
                 light_border_1: value.land_params.light_border_1,
                 light_border_2: value.land_params.light_border_2,
@@ -265,7 +271,7 @@ impl From<&IceWorldParams> for Lakes {
                 rotation: value.lake_params.rotation,
                 pixels: value.pixels,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.lake_params.time_speed_multiplier,
                 size: value.lake_params.size,
                 seed: value.lake_params.seed,
                 octaves: value.lake_params.octaves,
@@ -282,7 +288,7 @@ impl From<&IceWorldParams> for Clouds {
                 rotation: value.cloud_params.rotation,
                 cloud_cover: value.cloud_params.cloud_cover,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.cloud_params.time_speed_multiplier,
                 stretch: value.cloud_params.stretch,
                 cloud_curve: value.cloud_params.cloud_curve,
                 light_border_1: value.cloud_params.light_border_1,

@@ -31,7 +31,7 @@ impl Default for BandedGasGiantParams {
         BandedGasGiantParams {
             mesh_radius: 100.0,
             ring_mesh_radius: 300.0,
-            time_speed: 0.2,
+            time_speed: 1.0,
             light_origin: Vec2::new(-0.1, 0.3),
             base_layer_params: Default::default(),
             ring_params: Default::default(),
@@ -42,6 +42,7 @@ impl Default for BandedGasGiantParams {
 #[derive(Debug)]
 pub struct BaseParams {
     pub pixels: f32,
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub cloud_cover: f32,
     pub cloud_curve: f32,
@@ -61,6 +62,7 @@ impl Default for BaseParams {
     fn default() -> Self {
         BaseParams {
             pixels: 100.0,
+            time_speed_multiplier: 0.05,
             rotation: 0.0,
             cloud_cover: 0.61,
             cloud_curve: 1.376,
@@ -90,6 +92,7 @@ impl Default for BaseParams {
 #[derive(Debug)]
 pub struct RingParams {
     pub pixels: f32,
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub light_border_1: f32,
     pub light_border_2: f32,
@@ -107,6 +110,7 @@ impl Default for RingParams {
     fn default() -> Self {
         RingParams {
             pixels: 300.0,
+            time_speed_multiplier: 0.2,
             rotation: 0.7,
             light_border_1: 0.52,
             light_border_2: 0.62,
@@ -231,7 +235,7 @@ impl From<&BandedGasGiantParams> for Base {
                 light_origin: value.light_origin,
                 cloud_cover: value.base_layer_params.cloud_cover,
                 cloud_curve: value.base_layer_params.cloud_curve,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.base_layer_params.time_speed_multiplier,
                 stretch: value.base_layer_params.stretch,
                 light_border_1: value.base_layer_params.light_border_1,
                 light_border_2: value.base_layer_params.light_border_2,
@@ -281,7 +285,7 @@ impl From<&BandedGasGiantParams> for Ring {
                 pixels: value.ring_params.pixels,
                 rotation: value.ring_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.ring_params.time_speed_multiplier,
                 light_border_1: value.ring_params.light_border_1,
                 light_border_2: value.ring_params.light_border_2,
                 ring_width: value.ring_params.ring_width,

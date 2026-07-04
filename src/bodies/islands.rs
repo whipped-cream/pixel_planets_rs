@@ -37,7 +37,7 @@ impl Default for IslandsParams {
         IslandsParams {
             mesh_radius: 100.0,
             pixels: 100.0,
-            time_speed: 0.2,
+            time_speed: 1.0,
             light_origin: Vec2::new(0.39, 0.39),
             ocean_params: Default::default(),
             landmass_params: Default::default(),
@@ -48,6 +48,7 @@ impl Default for IslandsParams {
 
 #[derive(Debug)]
 pub struct OceanParams {
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub dither_size: Option<f32>,
     pub light_border_1: f32,
@@ -60,6 +61,7 @@ pub struct OceanParams {
 impl Default for OceanParams {
     fn default() -> Self {
         OceanParams {
+            time_speed_multiplier: 0.1,
             rotation: 100.0,
             dither_size: Some(2.0),
             light_border_1: 0.4,
@@ -78,6 +80,7 @@ impl Default for OceanParams {
 
 #[derive(Debug)]
 pub struct LandmassParams {
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     // pub dither_size: f32,
     pub light_border_1: f32,
@@ -91,6 +94,7 @@ pub struct LandmassParams {
 impl Default for LandmassParams {
     fn default() -> Self {
         LandmassParams {
+            time_speed_multiplier: 0.2,
             rotation: 0.2,
             light_border_1: 0.32,
             light_border_2: 0.534,
@@ -110,6 +114,7 @@ impl Default for LandmassParams {
 
 #[derive(Debug)]
 pub struct CloudParams {
+    pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub cloud_cover: f32,
     pub cloud_curve: f32,
@@ -124,6 +129,7 @@ pub struct CloudParams {
 impl Default for CloudParams {
     fn default() -> Self {
         CloudParams {
+            time_speed_multiplier: 0.47,
             rotation: 0.0,
             cloud_cover: 0.415,
             cloud_curve: 1.3,
@@ -245,7 +251,7 @@ impl From<&IslandsParams> for Landmass {
                 pixels: value.pixels,
                 rotation: value.landmass_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.landmass_params.time_speed_multiplier,
                 light_border_1: value.landmass_params.light_border_1,
                 light_border_2: value.landmass_params.light_border_2,
                 land_cutoff: value.landmass_params.land_cutoff,
@@ -265,7 +271,7 @@ impl From<&IslandsParams> for PlanetUnder {
                 pixels: value.pixels,
                 rotation: value.ocean_params.rotation,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.ocean_params.time_speed_multiplier,
                 dither_size: value.ocean_params.dither_size.unwrap_or(1.0),
                 light_border_1: value.ocean_params.light_border_1,
                 light_border_2: value.ocean_params.light_border_2,
@@ -287,7 +293,7 @@ impl From<&IslandsParams> for Clouds {
                 rotation: value.cloud_params.rotation,
                 cloud_cover: value.cloud_params.cloud_cover,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed,
+                time_speed: value.time_speed * value.cloud_params.time_speed_multiplier,
                 stretch: value.cloud_params.stretch,
                 cloud_curve: value.cloud_params.cloud_curve,
                 light_border_1: value.cloud_params.light_border_1,
