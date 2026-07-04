@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
-use crate::bodies::terran::CloudParams;
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Clouds>>() {
@@ -30,50 +29,68 @@ impl Default for StormyGasGiantParams {
             pixels: 100.0,
             time_speed: 1.0,
             light_origin: Vec2::new(0.25, 0.25),
-            base_layer: base_default(),
-            storm_layer: storm_default(),
+            base_layer: CloudParams::base_default(),
+            storm_layer: CloudParams::storm_default(),
         }
     }
 }
 
-pub fn base_default() -> CloudParams {
-    CloudParams {
-        time_speed_multiplier: 0.47,
-        rotation: 0.0,
-        cloud_cover: 0.0,
-        cloud_curve: 1.3,
-        stretch: 1.0,
-        light_border_1: 0.692,
-        light_border_2: 0.666,
-        colors: [
-            Srgba::hex("3b2027").unwrap().into(),
-            Srgba::hex("3b2027").unwrap().into(),
-            Srgba::hex("000000").unwrap().into(),
-            Srgba::hex("21181b").unwrap().into(),
-        ],
-        size: 9.0,
-        seed: 5.939,
-        octaves: 5,
-    }
+#[derive(Debug)]
+pub struct CloudParams {
+    pub time_speed_multiplier: f32,
+    pub rotation: f32,
+    // pub time_speed: f32,
+    pub cloud_cover: f32,
+    pub cloud_curve: f32,
+    pub stretch: f32,
+    pub light_border_1: f32,
+    pub light_border_2: f32,
+    pub colors: [Color; 4],
+    pub size: f32,
+    pub seed: f32,
+    pub octaves: u32,
 }
-pub fn storm_default() -> CloudParams {
-    CloudParams {
-        time_speed_multiplier: 0.47,
-        rotation: 0.0,
-        cloud_cover: 0.538,
-        cloud_curve: 1.3,
-        stretch: 1.0,
-        light_border_1: 0.439,
-        light_border_2: 0.746,
-        colors: [
-            Srgba::hex("f0b541").unwrap().into(),
-            Srgba::hex("cf752b").unwrap().into(),
-            Srgba::hex("ab5130").unwrap().into(),
-            Srgba::hex("7d3833").unwrap().into(),
-        ],
-        size: 9.0,
-        seed: 5.939,
-        octaves: 5,
+
+impl CloudParams {
+    pub fn base_default() -> CloudParams {
+        CloudParams {
+            time_speed_multiplier: 0.47,
+            rotation: 0.0,
+            cloud_cover: 0.0,
+            cloud_curve: 1.3,
+            stretch: 1.0,
+            light_border_1: 0.692,
+            light_border_2: 0.666,
+            colors: [
+                Srgba::hex("3b2027").unwrap().into(),
+                Srgba::hex("3b2027").unwrap().into(),
+                Srgba::hex("000000").unwrap().into(),
+                Srgba::hex("21181b").unwrap().into(),
+            ],
+            size: 9.0,
+            seed: 5.939,
+            octaves: 5,
+        }
+    }
+    pub fn storm_default() -> CloudParams {
+        CloudParams {
+            time_speed_multiplier: 0.47,
+            rotation: 0.0,
+            cloud_cover: 0.538,
+            cloud_curve: 1.3,
+            stretch: 1.0,
+            light_border_1: 0.439,
+            light_border_2: 0.746,
+            colors: [
+                Srgba::hex("f0b541").unwrap().into(),
+                Srgba::hex("cf752b").unwrap().into(),
+                Srgba::hex("ab5130").unwrap().into(),
+                Srgba::hex("7d3833").unwrap().into(),
+            ],
+            size: 9.0,
+            seed: 5.939,
+            octaves: 5,
+        }
     }
 }
 
