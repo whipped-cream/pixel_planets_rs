@@ -10,8 +10,7 @@ does not need to worry about (or even know about) the different resources used t
  
 ## Samples
 
-![images/concatenated.png]
-
+![Sample of 6 bodies that can be generated](images/concatenated.png)
 
 ## Changes from the original
 
