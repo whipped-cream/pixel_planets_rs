@@ -1,4 +1,4 @@
-use crate::bodies::PixelPlanet;
+use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
 use bevy::asset::{Asset, Assets};
 use bevy::color::{LinearRgba, Srgba};
 use bevy::math::Vec2;
@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
+use rand::{Rng, RngExt};
 
 pub fn build(app: &mut App) {
     app
@@ -50,6 +51,31 @@ impl Default for AsteroidParams {
         }
     }
 }
+impl Random for AsteroidParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        AsteroidParams {
+            colors: generate_random_colorscheme(rng, 0.3..0.6, 0.7, 3.0, 1.0, 3.0, 0.2),
+            seed: rng.random_range(0.0..100.0),
+            ..default()
+        }
+    }
+
+    // fn random_default_colors(rng: &mut impl Rng) -> Self {
+    //     AsteroidParams {
+    //         colors: Default::default(),
+    //         ..Self::random(rng)
+    //     }
+    // }
+}
+
+// fn generate_random_colorscheme(rng: &mut impl Rng) -> [Color; 3] {
+//     let hue_diff = rng.random_range(0.3..0.6);
+//     let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, 0.7);
+//
+//     array::from_fn(|i| {
+//         seed_colors[i].darker(i as f32 / 3.0).lighter(1.0 - (i as f32 / 3.0) * 0.2)
+//     })
+// }
 
 fn on_asteroid_added(
     trigger: On<Add, AsteroidParams>,

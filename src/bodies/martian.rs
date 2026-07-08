@@ -6,7 +6,8 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
-use crate::bodies::PixelPlanet;
+use rand::{Rng, RngExt};
+use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
     app
@@ -59,6 +60,15 @@ impl Default for MartianParams {
             size: 8.0,
             seed: 1.175,
             octaves: 3,
+        }
+    }
+}
+impl Random for MartianParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        MartianParams {
+            colors: generate_random_colorscheme(rng, 0.3..0.65, 1.0, 5.0, 1.0, 5.0, 0.2),
+            seed: rng.random_range(0.0..100.0),
+            ..default()
         }
     }
 }

@@ -2,7 +2,8 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
-use crate::bodies::PixelPlanet;
+use rand::{Rng, RngExt};
+use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
     app
@@ -36,6 +37,30 @@ impl Default for StarParams {
             body_params: Default::default(),
             blob_params: Default::default(),
             flare_params: Default::default()
+        }
+    }
+}
+impl Random for StarParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        let mut colors = generate_random_colorscheme(rng, 0.2..0.4, 2.0, 4.0, 0.9, 4.0, 0.8);
+        colors[0] = colors[0].lighter(0.8);
+        StarParams {
+            body_params: BodyParams {
+                colors,
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            blob_params: BlobParams {
+                colors: [colors[0]],
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            flare_params: FlareParams {
+                colors: [colors[1], colors[0]],
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            ..default()
         }
     }
 }

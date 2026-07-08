@@ -1,7 +1,9 @@
+use std::array;
 use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
+use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
-use crate::bodies::PixelPlanet;
+use crate::bodies::{generate_colorscheme_base, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Clouds>>() {
@@ -33,6 +35,34 @@ impl Default for StormyGasGiantParams {
             light_origin: Vec2::new(0.25, 0.25),
             base_layer: CloudParams::base_default(),
             storm_layer: CloudParams::storm_default(),
+        }
+    }
+}
+impl Random for StormyGasGiantParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        let hue_diff = rng.random_range(0.3..0.8);
+        let seed_colors: [Color; 8] = generate_colorscheme_base(rng, hue_diff, 1.0);
+
+        StormyGasGiantParams {
+            base_layer: CloudParams {
+                colors: array::from_fn(|i| {
+                    seed_colors[i]
+                        .darker(i as f32 / 6.0)
+                        .darker(0.7)
+                }),
+                seed: rng.random_range(0.0..100.0),
+                ..CloudParams::base_default()
+            },
+            storm_layer: CloudParams {
+                colors: array::from_fn(|i| {
+                    seed_colors[i + 4]
+                        .darker(i as f32 / 4.0)
+                        .lighter(1.0 - (i as f32 / 4.0) * 0.5)
+                }),
+                seed: rng.random_range(0.0..100.0),
+                ..CloudParams::storm_default()
+            },
+            ..default()
         }
     }
 }

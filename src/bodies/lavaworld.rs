@@ -1,10 +1,12 @@
+use std::array;
 use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
+use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::craters::{Craters, CratersUniform};
 use crate::bodies::building_blocks::surface::{Surface, SurfaceUniform};
-use crate::bodies::PixelPlanet;
+use crate::bodies::{generate_colorscheme_base, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Surface>>() {
@@ -44,6 +46,41 @@ impl Default for LavaWorldParams {
             surface_params: Default::default(),
             craters_params: Default::default(),
             lava_rivers_params: Default::default()
+        }
+    }
+}
+impl Random for LavaWorldParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        let saturation = rng.random_range(0.6..1.0);
+        let hue_diff = rng.random_range(0.7..0.8);
+        let seed_colors: [_; 2] = generate_colorscheme_base(rng, hue_diff, saturation);
+
+        let land_colors = array::from_fn(|i| {
+            let new_color = Hsva::from(seed_colors[0].darker(i as f32 / 4.0));
+            Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value).into()
+        });
+        let lava_colors = array::from_fn(|i| {
+            let new_color = Hsva::from(seed_colors[1].darker(i as f32 / 3.0));
+            Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 3.0)), new_color.saturation, new_color.value).into()
+        });
+
+        LavaWorldParams {
+            surface_params: SurfaceParams {
+                colors: land_colors,
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            craters_params: CratersParams {
+                colors: [land_colors[1], land_colors[0]],
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            lava_rivers_params: LavaRiversParams {
+                colors: lava_colors,
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            ..default()
         }
     }
 }

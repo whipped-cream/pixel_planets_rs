@@ -1,6 +1,6 @@
 // TODO: Calling a galaxy a body is not really correct
 
-use crate::bodies::PixelPlanet;
+use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
 use bevy::asset::{Asset, Assets};
 use bevy::color::{LinearRgba, Srgba};
 use bevy::mesh::{Mesh, Mesh2d};
@@ -8,6 +8,7 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
+use rand::{Rng, RngExt};
 
 pub fn build(app: &mut App) {
     app
@@ -66,6 +67,15 @@ impl Default for GalaxyParams {
             layer_height: 0.4,
             zoom: 1.375,
             swirl: -9.0,
+        }
+    }
+}
+impl Random for GalaxyParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        GalaxyParams {
+            colors: generate_random_colorscheme(rng, 0.5..0.8, 1.4, 7.0, 1.0, 6.0, 0.6),
+            seed: rng.random_range(0.0..100.0),
+            ..default()
         }
     }
 }

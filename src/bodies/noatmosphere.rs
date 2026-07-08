@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
+use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::craters::{Craters, CratersUniform};
 use crate::bodies::building_blocks::surface::{Surface, SurfaceUniform};
-use crate::bodies::PixelPlanet;
+use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
     app
@@ -35,6 +36,24 @@ impl Default for NoAtmosphereParams {
             light_origin: Vec2::new(0.25, 0.25),
             surface_params: Default::default(),
             craters_params: Default::default(),
+        }
+    }
+}
+impl Random for NoAtmosphereParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        let seed_colors = generate_random_colorscheme(rng, 0.3..0.6, 0.7, 3.0, 1.0, 3.0, 0.2);
+        NoAtmosphereParams {
+            surface_params: SurfaceParams {
+                colors: seed_colors,
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            craters_params: CratersParams {
+                colors: [seed_colors[1], seed_colors[2]],
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            ..default()
         }
     }
 }

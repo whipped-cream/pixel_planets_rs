@@ -2,7 +2,8 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
-use crate::bodies::PixelPlanet;
+use rand::{Rng, RngExt};
+use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
     app
@@ -35,6 +36,23 @@ impl Default for BlackHoleParams {
             light_origin: Vec2::new(0.607, 0.444),
             shadow_params: Default::default(),
             accretion_disk_params: Default::default(),
+        }
+    }
+}
+impl Random for BlackHoleParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        let colors: [Color; 5] = generate_random_colorscheme(rng, 0.3..0.5, 2.0, 5.0, 0.7, 5.0, 0.9);
+        BlackHoleParams {
+            shadow_params: ShadowParams {
+                colors: [Srgba::hex("272736").unwrap().into(), colors[0], colors[3]],
+                ..default()
+            },
+            accretion_disk_params: AccretionDiskParams {
+                colors,
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            ..default()
         }
     }
 }

@@ -1,3 +1,4 @@
+use std::array;
 use bevy::asset::{Asset, Assets};
 use bevy::color::{LinearRgba, Srgba};
 use bevy::math::{vec2, Vec2};
@@ -6,8 +7,9 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
+use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
-use crate::bodies::PixelPlanet;
+use crate::bodies::{generate_colorscheme_base, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
     app
@@ -28,7 +30,7 @@ pub struct TerranParams {
     pub mesh_radius: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
-    pub land_params: RiversParams,
+    pub land_params: LandParams,
     pub cloud_params: CloudParams
 }
 impl Default for TerranParams {
@@ -38,8 +40,41 @@ impl Default for TerranParams {
             mesh_radius: 100.0,
             time_speed: 1.0,
             light_origin: vec2(0.39, 0.39),
-            land_params: RiversParams::default(),
-            cloud_params: cloud_default()
+            land_params: Default::default(),
+            cloud_params: Default::default()
+        }
+    }
+}
+impl Random for TerranParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        let hue_diff = rng.random_range(0.7..1.0);
+        let saturation = rng.random_range(0.45..0.55);
+        let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, saturation);
+
+        let land_colors_1: [_; 4] = array::from_fn(|i| {
+            let new_color = Hsva::from(seed_colors[0].darker(i as f32 / 4.0));
+            Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value).into()
+        });
+        let land_colors_2: [_; 2] = array::from_fn(|i| {
+            let new_color = Hsva::from(seed_colors[1].darker(i as f32 / 2.0));
+            Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 2.0)), new_color.saturation, new_color.value).into()
+        });
+
+        TerranParams {
+            land_params: LandParams {
+                colors: [land_colors_1[0], land_colors_1[1], land_colors_1[2], land_colors_1[3], land_colors_2[0], land_colors_2[1]],
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            cloud_params: CloudParams {
+                colors: array::from_fn(|i| {
+                    let new_color = Hsva::from(seed_colors[2].lighter((1.0 - (i as f32 / 4.0)) * 0.8));
+                    Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value).into()
+                }),
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            ..default()
         }
     }
 }
@@ -47,7 +82,7 @@ impl Default for TerranParams {
 // TODO: Move more things from the params into the Rivers which should be shared between the
 // TODO: cloud and land shaders
 #[derive(Debug, Clone)]
-pub struct RiversParams {
+pub struct LandParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub dither_size: Option<f32>,
@@ -59,9 +94,9 @@ pub struct RiversParams {
     pub seed: f32,
     pub octaves: u32,
 }
-impl Default for RiversParams {
+impl Default for LandParams {
     fn default() -> Self {
-        RiversParams {
+        LandParams {
             time_speed_multiplier: 0.02,
             rotation: 0.2,
             // time_speed: 0.1,
@@ -99,25 +134,27 @@ pub struct CloudParams {
     pub seed: f32,
     pub octaves: u32,
 }
-fn cloud_default() -> CloudParams {
-    CloudParams {
-        time_speed_multiplier: 0.01,
-        rotation: 0.0,
-        // time_speed: 0.1,
-        cloud_cover: 0.47,
-        cloud_curve: 1.3,
-        stretch: 2.0,
-        light_border_1: 0.52,
-        light_border_2: 0.62,
-        colors: [
-            Srgba::hex("f5ffe8").unwrap().into(),
-            Srgba::hex("dfe0e8").unwrap().into(),
-            Srgba::hex("686f99").unwrap().into(),
-            Srgba::hex("404973").unwrap().into(),
-        ],
-        size: 7.315,
-        seed: 5.939,
-        octaves: 2,
+impl Default for CloudParams {
+    fn default() -> Self {
+        CloudParams {
+            time_speed_multiplier: 0.01,
+            rotation: 0.0,
+            // time_speed: 0.1,
+            cloud_cover: 0.47,
+            cloud_curve: 1.3,
+            stretch: 2.0,
+            light_border_1: 0.52,
+            light_border_2: 0.62,
+            colors: [
+                Srgba::hex("f5ffe8").unwrap().into(),
+                Srgba::hex("dfe0e8").unwrap().into(),
+                Srgba::hex("686f99").unwrap().into(),
+                Srgba::hex("404973").unwrap().into(),
+            ],
+            size: 7.315,
+            seed: 5.939,
+            octaves: 2,
+        }
     }
 }
 

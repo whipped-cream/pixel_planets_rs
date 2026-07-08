@@ -5,12 +5,14 @@ edition = "2024"
 
 [dependencies]
 bevy = { version = "0.19", features = ["2d"] }
+rand = { version = "0.10", default-features = false } # We don't wanna require any specific rng. Just using this for the trait
 
 [dev-dependencies]
 bevy = { version = "0.19", features = ["2d", "ui"] }
 bevy_egui = "0.41"
 egui = "0.35"
 rand = "0.10"
+bevy_rand = { version = "0.15.0", features = ["wyrand"] }
 
 [features]
 dynamic = []

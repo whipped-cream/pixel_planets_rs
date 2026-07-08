@@ -1,10 +1,12 @@
+use std::array;
 use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
+use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
 use crate::bodies::building_blocks::planetunder::{PlanetUnder, PlanetUnderUniform};
-use crate::bodies::PixelPlanet;
+use crate::bodies::{generate_colorscheme_base, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
     app
@@ -44,6 +46,40 @@ impl Default for IslandsParams {
             ocean_params: Default::default(),
             landmass_params: Default::default(),
             cloud_params: Default::default()
+        }
+    }
+}
+impl Random for IslandsParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        let saturation = rng.random_range(0.45..0.55);
+        let hue_diff = rng.random_range(0.7..1.0);
+        let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, saturation);
+        IslandsParams {
+            landmass_params: LandmassParams {
+                colors: array::from_fn(|i| {
+                    let new_color = Hsva::from(seed_colors[0].darker(i as f32 / 4.0));
+                    Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value).into()
+                }),
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            ocean_params: OceanParams {
+                colors: array::from_fn(|i| {
+                    let new_color = Hsva::from(seed_colors[1].darker(i as f32 / 5.0));
+                    Hsva::hsv(new_color.hue + (0.1 * (i as f32 / 2.0)), new_color.saturation, new_color.value).into() // The factors here cancel. Kept this way to match Godot
+                }),
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            cloud_params: CloudParams {
+                colors: array::from_fn(|i| {
+                    let new_color = Hsva::from(seed_colors[2].lighter((1.0 - i as f32 / 4.0) * 0.8));
+                    Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value).into()
+                }),
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            ..default()
         }
     }
 }

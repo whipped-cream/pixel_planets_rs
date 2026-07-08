@@ -1,10 +1,12 @@
+use std::array;
 // TODO: The rings on this shader dont quite match the Godot and I'm not 100% sure why
 // The rings on the Godot are rougher on the edges but this one makes very smooth edges.
-use crate::bodies::PixelPlanet;
+use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
 use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
+use rand::{Rng, RngExt};
 
 pub fn build(app: &mut App) {
     app
@@ -40,6 +42,41 @@ impl Default for BandedGasGiantParams {
         }
     }
 }
+impl Random for BandedGasGiantParams {
+    fn random(rng: &mut impl Rng) -> Self {
+        let colors: [_; 6] = generate_random_colorscheme(rng, 0.3..0.55, 1.4, 7.0, 1.0,6.0, 0.3);
+        BandedGasGiantParams {
+            base_layer_params: BaseParams {
+                colors: array::from_fn(|i| { colors[i] }),
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            ring_params: RingParams {
+                colors: array::from_fn(|i| { colors[i + 3] }),
+                seed: rng.random_range(0.0..100.0),
+                ..default()
+            },
+            ..default()
+        }
+    }
+
+    // fn random_default_colors(rng: &mut impl Rng) -> Self {
+    //     // Advance the RNG so that we generate the same seed
+    //     let _: [_; 6] = generate_random_colorscheme(rng, 0.3..0.55, 1.4, 7.0, 1.0, 6.0, 0.3);
+    //     BandedGasGiantParams {
+    //         base_layer_params: BaseParams {
+    //             seed: rng.random_range(0.0..100.0),
+    //             ..default()
+    //         },
+    //         ring_params: RingParams {
+    //             seed: rng.random_range(0.0..100.0),
+    //             ..default()
+    //         },
+    //         ..default()
+    //     }
+    // }
+}
+
 
 #[derive(Debug, Clone)]
 pub struct BaseParams {

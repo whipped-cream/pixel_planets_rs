@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_egui::{EguiContexts, EguiPlugin, EguiPrimaryContextPass};
-use pixel_planets_rs::PixelPlanetsPlugin;
+use bevy_rand::prelude::*;
+use rand::Rng;
+use pixel_planets_rs::{BodyType, PixelPlanetsPlugin};
 
 use pixel_planets_rs::bodies::terran::TerranParams;
 use pixel_planets_rs::bodies::asteroid::AsteroidParams;
@@ -13,64 +15,13 @@ use pixel_planets_rs::bodies::blackhole::BlackHoleParams;
 use pixel_planets_rs::bodies::galaxy::GalaxyParams;
 use pixel_planets_rs::bodies::iceworld::IceWorldParams;
 use pixel_planets_rs::bodies::lavaworld::LavaWorldParams;
+use pixel_planets_rs::bodies::Random;
 use pixel_planets_rs::bodies::star::StarParams;
 
 
-#[derive(Debug, Clone, PartialEq)]
-enum PlanetType {
-    Terran,
-    Asteroid,
-    BandedGasGiant,
-    Martian,
-    Islands,
-    NoAtmosphere,
-    StormyGasGiant,
-    BlackHole,
-    Galaxy,
-    IceWorld,
-    LavaWorld,
-    Star
-}
-
-impl PlanetType {
-    fn all() -> &'static [PlanetType] {
-        &[
-            PlanetType::Terran,
-            PlanetType::Asteroid,
-            PlanetType::BandedGasGiant,
-            PlanetType::Martian,
-            PlanetType::Islands,
-            PlanetType::NoAtmosphere,
-            PlanetType::StormyGasGiant,
-            PlanetType::BlackHole,
-            PlanetType::Galaxy,
-            PlanetType::IceWorld,
-            PlanetType::LavaWorld,
-            PlanetType::Star,
-        ]
-    }
-
-    fn label(&self) -> &'static str {
-        match self {
-            PlanetType::Terran => "Terran",
-            PlanetType::Asteroid => "Asteroid",
-            PlanetType::BandedGasGiant => "Banded Gas Giant",
-            PlanetType::Martian => "Martian",
-            PlanetType::Islands => "Islands",
-            PlanetType::NoAtmosphere => "No Atmosphere",
-            PlanetType::StormyGasGiant => "Stormy Gas Giant",
-            PlanetType::BlackHole => "Black Hole",
-            PlanetType::Galaxy => "Galaxy",
-            PlanetType::IceWorld => "Ice World",
-            PlanetType::LavaWorld => "Lava World",
-            PlanetType::Star => "Star",
-        }
-    }
-}
-
 #[derive(Resource)]
 struct UiState {
-    planet_type: PlanetType,
+    planet_type: BodyType,
     seed: f32,
     pixels: f32,
     rotation: f32,
@@ -81,7 +32,7 @@ struct UiState {
 impl Default for UiState {
     fn default() -> Self {
         UiState {
-            planet_type: PlanetType::Terran,
+            planet_type: BodyType::Terran,
             seed: 8.98,
             pixels: 100.0,
             rotation: 0.0,
@@ -100,6 +51,7 @@ impl Default for UiState {
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, EguiPlugin::default(), PixelPlanetsPlugin))
+        .add_plugins(EntropyPlugin::<WyRand>::default())
         .init_resource::<UiState>()
         .add_systems(Startup, setup)
         .add_systems(EguiPrimaryContextPass, ui)
@@ -113,20 +65,37 @@ fn setup(mut commands: Commands) {
     ));
 }
 
-fn spawn_planet(planet_type: &PlanetType, commands: &mut Commands) -> Entity {
+fn spawn_planet(planet_type: &BodyType, commands: &mut Commands) -> Entity {
     match planet_type {
-        PlanetType::Terran => commands.spawn((TerranParams::default(), Transform::default())).id(),
-        PlanetType::Asteroid => commands.spawn((AsteroidParams::default(), Transform::default())).id(),
-        PlanetType::BandedGasGiant => commands.spawn((BandedGasGiantParams::default(), Transform::default())).id(),
-        PlanetType::Martian => commands.spawn((MartianParams::default(), Transform::default())).id(),
-        PlanetType::Islands => commands.spawn((IslandsParams::default(), Transform::default())).id(),
-        PlanetType::NoAtmosphere => commands.spawn((NoAtmosphereParams::default(), Transform::default())).id(),
-        PlanetType::StormyGasGiant => commands.spawn((StormyGasGiantParams::default(), Transform::default())).id(),
-        PlanetType::BlackHole => commands.spawn((BlackHoleParams::default(), Transform::default())).id(),
-        PlanetType::Galaxy => commands.spawn((GalaxyParams::default(), Transform::default())).id(),
-        PlanetType::IceWorld => commands.spawn((IceWorldParams::default(), Transform::default())).id(),
-        PlanetType::LavaWorld => commands.spawn((LavaWorldParams::default(), Transform::default())).id(),
-        PlanetType::Star => commands.spawn((StarParams::default(), Transform::default())).id(),
+        BodyType::Terran => commands.spawn((TerranParams::default(), Transform::default())).id(),
+        BodyType::Asteroid => commands.spawn((AsteroidParams::default(), Transform::default())).id(),
+        BodyType::BandedGasGiant => commands.spawn((BandedGasGiantParams::default(), Transform::default())).id(),
+        BodyType::Martian => commands.spawn((MartianParams::default(), Transform::default())).id(),
+        BodyType::Islands => commands.spawn((IslandsParams::default(), Transform::default())).id(),
+        BodyType::NoAtmosphere => commands.spawn((NoAtmosphereParams::default(), Transform::default())).id(),
+        BodyType::StormyGasGiant => commands.spawn((StormyGasGiantParams::default(), Transform::default())).id(),
+        BodyType::BlackHole => commands.spawn((BlackHoleParams::default(), Transform::default())).id(),
+        BodyType::Galaxy => commands.spawn((GalaxyParams::default(), Transform::default())).id(),
+        BodyType::IceWorld => commands.spawn((IceWorldParams::default(), Transform::default())).id(),
+        BodyType::LavaWorld => commands.spawn((LavaWorldParams::default(), Transform::default())).id(),
+        BodyType::Star => commands.spawn((StarParams::default(), Transform::default())).id(),
+    }
+}
+
+fn spawn_planet_random(rng: &mut impl Rng, planet_type: &BodyType, commands: &mut Commands) -> Entity {
+    match planet_type {
+        BodyType::Terran => commands.spawn((TerranParams::random(rng), Transform::default())).id(),
+        BodyType::Asteroid => commands.spawn((AsteroidParams::random(rng), Transform::default())).id(),
+        BodyType::BandedGasGiant => commands.spawn((BandedGasGiantParams::random(rng), Transform::default())).id(),
+        BodyType::Martian => commands.spawn((MartianParams::random(rng), Transform::default())).id(),
+        BodyType::Islands => commands.spawn((IslandsParams::random(rng), Transform::default())).id(),
+        BodyType::NoAtmosphere => commands.spawn((NoAtmosphereParams::random(rng), Transform::default())).id(),
+        BodyType::StormyGasGiant => commands.spawn((StormyGasGiantParams::random(rng), Transform::default())).id(),
+        BodyType::BlackHole => commands.spawn((BlackHoleParams::random(rng), Transform::default())).id(),
+        BodyType::Galaxy => commands.spawn((GalaxyParams::random(rng), Transform::default())).id(),
+        BodyType::IceWorld => commands.spawn((IceWorldParams::random(rng), Transform::default())).id(),
+        BodyType::LavaWorld => commands.spawn((LavaWorldParams::random(rng), Transform::default())).id(),
+        BodyType::Star => commands.spawn((StarParams::random(rng), Transform::default())).id(),
     }
 }
 
@@ -134,6 +103,7 @@ fn ui(
     mut contexts: EguiContexts,
     mut state: ResMut<UiState>,
     mut commands: Commands,
+    mut rng: Single<&mut WyRand>
 ) -> Result {
     let ctx = contexts.ctx_mut()?;
     let mut viewport_ui = egui::Ui::new(
@@ -155,7 +125,7 @@ fn ui(
             egui::ComboBox::from_id_salt("planet_type")
                 .selected_text(state.planet_type.label())
                 .show_ui(ui, |ui| {
-                    for planet_type in PlanetType::all() {
+                    for planet_type in BodyType::all() {
                         let selected = *planet_type == state.planet_type;
                         if ui.selectable_label(selected, planet_type.label()).clicked() && !selected {
                             state.planet_type = planet_type.clone();
@@ -230,7 +200,7 @@ fn ui(
                 if let Some(entity) = state.current_planet.take() {
                     commands.entity(entity).despawn();
                 } else {
-                    state.current_planet = Some(spawn_planet(&state.planet_type, &mut commands));
+                    state.current_planet = Some(spawn_planet_random(rng.as_mut(), &state.planet_type, &mut commands));
                 }
             }
         });
