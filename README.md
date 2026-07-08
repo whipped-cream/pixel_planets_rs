@@ -8,6 +8,11 @@ The crate provides the `PixelPlanetsPlugin` plugin, which you should register as
 An observer watches for these components to be added and adds a `Mesh` and `Material`s so that the shader is rendered as expected. This was implemented using observers so that the user
 does not need to worry about (or even know about) the different resources used to manage materials, which can be quite numerous.
  
+## Samples
+
+![images/concatenated.png]
+
+
 ## Changes from the original
 
 - Name changes that I may revert even though I like my names better
