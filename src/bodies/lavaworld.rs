@@ -15,10 +15,9 @@ pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Craters>>() {
         app.add_plugins(Material2dPlugin::<Craters>::default());
     }
-    if !app.is_plugin_added::<Material2dPlugin<Rivers>>() {
-        app.add_plugins(Material2dPlugin::<Rivers>::default());
-    }
-    
+
+    app.add_plugins(Material2dPlugin::<LavaRivers>::default());
+
     app.add_observer(on_lava_world_added);
 
     #[cfg(feature = "dynamic")]
@@ -182,7 +181,7 @@ struct LavaWorldHandles {
     mesh: Handle<Mesh>,
     surface: Handle<Surface>,
     craters: Handle<Craters>,
-    lava_rivers: Handle<Rivers>
+    lava_rivers: Handle<LavaRivers>
 }
 
 fn on_lava_world_added(
@@ -191,7 +190,7 @@ fn on_lava_world_added(
     mut meshes: ResMut<Assets<Mesh>>,
     mut surface_materials: ResMut<Assets<Surface>>,
     mut craters_materials: ResMut<Assets<Craters>>,
-    mut lava_rivers_materials: ResMut<Assets<Rivers>>,
+    mut lava_rivers_materials: ResMut<Assets<LavaRivers>>,
     mut commands: Commands
 ) {
     info!("Lava Rivers planet added!");
@@ -201,7 +200,7 @@ fn on_lava_world_added(
     let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_radius)));
     let surface = MeshMaterial2d(surface_materials.add(Surface::from(params)));
     let craters = MeshMaterial2d(craters_materials.add(Craters::from(params)));
-    let lava_rivers = MeshMaterial2d(lava_rivers_materials.add(Rivers::from(params)));
+    let lava_rivers = MeshMaterial2d(lava_rivers_materials.add(LavaRivers::from(params)));
 
     #[cfg(feature = "dynamic")]
     commands.entity(trigger.entity).insert(LavaWorldHandles {
@@ -233,7 +232,7 @@ fn on_lava_world_changed(
     query: Query<(&LavaWorldParams, &LavaWorldHandles), Changed<LavaWorldParams>>,
     mut surface_materials: ResMut<Assets<Surface>>,
     mut craters_materials: ResMut<Assets<Craters>>,
-    mut lava_rivers_materials: ResMut<Assets<Rivers>>
+    mut lava_rivers_materials: ResMut<Assets<LavaRivers>>
 ) {
     for (params, handles) in query {
         if let Some(mut surface) = surface_materials.get_mut(handles.surface.id()) {
@@ -243,7 +242,7 @@ fn on_lava_world_changed(
             *craters = Craters::from(params);
         }
         if let Some(mut lava_rivers) = lava_rivers_materials.get_mut(handles.lava_rivers.id()) {
-            *lava_rivers = Rivers::from(params);
+            *lava_rivers = LavaRivers::from(params);
         }
     }
 }
@@ -302,16 +301,16 @@ pub(crate) struct RiversUniform {
     octaves: u32,
 }
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-pub(crate) struct Rivers {
+pub(crate) struct LavaRivers {
     #[uniform(0)]
     params: RiversUniform
 }
-impl Material2d for Rivers {
+impl Material2d for LavaRivers {
     fn fragment_shader() -> ShaderRef { "shaders/lavaworld/rivers.wgsl".into() }
 }
-impl From<&LavaWorldParams> for Rivers {
+impl From<&LavaWorldParams> for LavaRivers {
     fn from(value: &LavaWorldParams) -> Self {
-        Rivers {
+        LavaRivers {
             params: RiversUniform {
                 pixels: value.pixels,
                 rotation: value.lava_rivers_params.rotation,

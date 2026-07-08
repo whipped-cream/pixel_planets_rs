@@ -2,7 +2,6 @@ use std::array;
 use bevy::asset::{Asset, Assets};
 use bevy::color::{LinearRgba, Srgba};
 use bevy::math::{vec2, Vec2};
-use bevy::mesh::{Mesh, Mesh2d};
 use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;

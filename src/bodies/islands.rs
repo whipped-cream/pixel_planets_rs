@@ -9,16 +9,18 @@ use crate::bodies::building_blocks::planetunder::{PlanetUnder, PlanetUnderUnifor
 use crate::bodies::{generate_colorscheme_base, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
-    app
-        .add_plugins((
-            Material2dPlugin::<PlanetUnder>::default(),
-            Material2dPlugin::<Landmass>::default(),
-        ))
-        .add_observer(on_islands_added);
-
+    if !app.is_plugin_added::<Material2dPlugin<PlanetUnder>>() {
+        app.add_plugins(Material2dPlugin::<PlanetUnder>::default());
+    }
     if !app.is_plugin_added::<Material2dPlugin<Clouds>>() {
         app.add_plugins(Material2dPlugin::<Clouds>::default());
     }
+
+    app
+        .add_plugins((
+            Material2dPlugin::<Landmass>::default(),
+        ))
+        .add_observer(on_islands_added);
 
     #[cfg(feature = "dynamic")]
     app.add_systems(Update, on_islands_changed);

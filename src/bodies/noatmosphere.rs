@@ -6,12 +6,14 @@ use crate::bodies::building_blocks::surface::{Surface, SurfaceUniform};
 use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
 
 pub fn build(app: &mut App) {
-    app
-        .add_plugins((
-            Material2dPlugin::<Surface>::default(),
-            Material2dPlugin::<Craters>::default(),
-        ))
-        .add_observer(on_no_atmosphere_added);
+    if !app.is_plugin_added::<Material2dPlugin<Surface>>() {
+        app.add_plugins(Material2dPlugin::<Surface>::default());
+    }
+    if !app.is_plugin_added::<Material2dPlugin<Craters>>() {
+        app.add_plugins(Material2dPlugin::<Craters>::default());
+    }
+
+    app.add_observer(on_no_atmosphere_added);
 
     #[cfg(feature = "dynamic")]
     app.add_systems(Update, on_no_atmosphere_changed);
