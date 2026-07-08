@@ -166,13 +166,3 @@ impl From<&MartianParams> for Martian {
         }
     }
 }
-// fn make_color_array(value: &Vec<LinearRgba>) -> [LinearRgba; 5] {
-//     if value.len() > 5 {
-//         warn!("Number of colors for Martian must be less than 5!")
-//     }
-//     let mut array = [Srgba::new(0.0, 0.0, 0.0, 0.0).into(); 5];
-//     for (index, color) in value.iter().enumerate().take(5) {
-//         array[index] = *color;
-//     }
-//     array
-// }
