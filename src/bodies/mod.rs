@@ -73,3 +73,55 @@ pub(crate) fn generate_random_colorscheme<const NUM_COLORS: usize>(
             .lighter((1.0 - (i as f32 / c)) * d)
     })
 }
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum BodyType {
+    Terran,
+    Asteroid,
+    BandedGasGiant,
+    Martian,
+    Islands,
+    NoAtmosphere,
+    StormyGasGiant,
+    BlackHole,
+    Galaxy,
+    IceWorld,
+    LavaWorld,
+    Star
+}
+
+impl BodyType {
+    pub fn all() -> &'static [BodyType] {
+        &[
+            BodyType::Terran,
+            BodyType::Asteroid,
+            BodyType::BandedGasGiant,
+            BodyType::Martian,
+            BodyType::Islands,
+            BodyType::NoAtmosphere,
+            BodyType::StormyGasGiant,
+            BodyType::BlackHole,
+            BodyType::Galaxy,
+            BodyType::IceWorld,
+            BodyType::LavaWorld,
+            BodyType::Star,
+        ]
+    }
+
+    pub fn label(&self) -> &'static str {
+        match self {
+            BodyType::Terran => "Terran",
+            BodyType::Asteroid => "Asteroid",
+            BodyType::BandedGasGiant => "Banded Gas Giant",
+            BodyType::Martian => "Martian",
+            BodyType::Islands => "Islands",
+            BodyType::NoAtmosphere => "No Atmosphere",
+            BodyType::StormyGasGiant => "Stormy Gas Giant",
+            BodyType::BlackHole => "Black Hole",
+            BodyType::Galaxy => "Galaxy",
+            BodyType::IceWorld => "Ice World",
+            BodyType::LavaWorld => "Lava World",
+            BodyType::Star => "Star",
+        }
+    }
+}

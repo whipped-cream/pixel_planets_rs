@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_egui::{EguiContexts, EguiPlugin, EguiPrimaryContextPass};
 use bevy_rand::prelude::*;
 use rand::Rng;
-use pixel_planets_rs::{BodyType, PixelPlanetsPlugin};
+use pixel_planets_rs::{bodies::BodyType, PixelPlanetsPlugin};
 
 use pixel_planets_rs::bodies::terran::TerranParams;
 use pixel_planets_rs::bodies::asteroid::AsteroidParams;
