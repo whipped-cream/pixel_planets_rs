@@ -43,7 +43,7 @@ impl Default for StarParams {
 impl Random for StarParams {
     fn random(rng: &mut impl Rng) -> Self {
         let mut colors = generate_random_colorscheme(rng, 0.2..0.4, 2.0, 4.0, 0.9, 4.0, 0.8);
-        colors[0] = colors[0].lighter(0.8);
+        colors[0] = colors[0].mix(&Color::WHITE, 0.8);
         StarParams {
             body_params: BodyParams {
                 colors,

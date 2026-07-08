@@ -49,46 +49,38 @@ impl Default for IceWorldParams {
 }
 impl Random for IceWorldParams {
     fn random(rng: &mut impl Rng) -> Self {
-        let colors = generate_random_colorscheme(rng);
+        let hue_diff = rng.random_range(0.7..1.0);
+        let saturation = rng.random_range(0.45..0.55);
+        let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, saturation);
+
         IceWorldParams {
             land_params: LandParams {
-                colors: array::from_fn(|i| { colors[i] }),
+                colors: array::from_fn(|i| {
+                    let new_color = Hsva::from(seed_colors[0].mix(&Color::BLACK, i as f32 / 3.0));
+                    Color::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)) * 360.0, new_color.saturation, new_color.value)
+                }),
                 seed: rng.random_range(0.0..100.0),
                 ..default()
             },
             lake_params: LakeParams {
-                colors: array::from_fn(|i| { colors[i + 3] }),
+                colors: array::from_fn(|i| {
+                    let new_color = Hsva::from(seed_colors[1].mix(&Color::BLACK, i as f32 / 3.0));
+                    Color::hsv(new_color.hue + (0.2 * (i as f32 / 3.0)) * 360.0, new_color.saturation, new_color.value)
+                }),
                 seed: rng.random_range(0.0..100.0),
                 ..default()
             },
             cloud_params: CloudParams {
-                colors: array::from_fn(|i| { colors[i + 6] }),
+                colors: array::from_fn(|i| {
+                    let new_color = Hsva::from(seed_colors[2].mix(&Color::WHITE, (1.0 - i as f32 / 4.0) * 0.8));
+                    Color::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)) * 360.0, new_color.saturation, new_color.value)
+                }),
                 seed: rng.random_range(0.0..100.0),
                 ..default()
             },
             ..default()
         }
     }
-}
-fn generate_random_colorscheme(rng: &mut impl Rng) -> [Color; 10] {
-    let hue_diff = rng.random_range(0.7..1.0);
-    let saturation = rng.random_range(0.45..0.55);
-    let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, saturation);
-
-    let mut colors = [Color::WHITE; 10];
-    for i in 0..3 {
-        let new_color = Hsva::from(seed_colors[0].darker(i as f32 / 3.0));
-        colors[i] = Color::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value);
-    }
-    for i in 3..6 {
-        let new_color = Hsva::from(seed_colors[1].darker(i as f32 / 3.0));
-        colors[i] = Color::hsv(new_color.hue + (0.2 * (i as f32 / 3.0)), new_color.saturation, new_color.value);
-    }
-    for i in 6..10 {
-        let new_color = Hsva::from(seed_colors[2].lighter((1.0 - i as f32 / 4.0) * 0.8));
-        colors[i] = Color::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value);
-    }
-    colors
 }
 
 #[derive(Debug, Clone)]

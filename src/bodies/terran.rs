@@ -50,14 +50,15 @@ impl Random for TerranParams {
         let hue_diff = rng.random_range(0.7..1.0);
         let saturation = rng.random_range(0.45..0.55);
         let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, saturation);
+        dbg!(&seed_colors);
 
         let land_colors_1: [_; 4] = array::from_fn(|i| {
-            let new_color = Hsva::from(seed_colors[0].darker(i as f32 / 4.0));
-            Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value).into()
+            let new_color = Hsva::from(seed_colors[0].mix(&Color::BLACK, i as f32 / 4.0));
+            Color::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)) * 360.0, new_color.saturation, new_color.value)
         });
         let land_colors_2: [_; 2] = array::from_fn(|i| {
-            let new_color = Hsva::from(seed_colors[1].darker(i as f32 / 2.0));
-            Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 2.0)), new_color.saturation, new_color.value).into()
+            let new_color = Hsva::from(seed_colors[1].mix(&Color::BLACK, i as f32 / 2.0));
+            Color::hsv(new_color.hue + (0.2 * (i as f32 / 2.0)) * 360.0, new_color.saturation, new_color.value)
         });
 
         TerranParams {
@@ -68,8 +69,8 @@ impl Random for TerranParams {
             },
             cloud_params: CloudParams {
                 colors: array::from_fn(|i| {
-                    let new_color = Hsva::from(seed_colors[2].lighter((1.0 - (i as f32 / 4.0)) * 0.8));
-                    Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value).into()
+                    let new_color = Hsva::from(seed_colors[2].mix(&Color::WHITE, (1.0 - (i as f32 / 4.0)) * 0.8));
+                    Color::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)) * 360.0, new_color.saturation, new_color.value)
                 }),
                 seed: rng.random_range(0.0..100.0),
                 ..default()

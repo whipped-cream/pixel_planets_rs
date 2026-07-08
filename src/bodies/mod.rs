@@ -46,7 +46,7 @@ pub(crate) fn generate_colorscheme_base<const NUM_COLORS: usize>(rng: &mut impl 
 
     let n = max(1, NUM_COLORS - 1) as f32;
 
-    array::from_fn(|i| {
+    array::from_fn(|i| { // Not sure if the i / n is integer division or not. I dont think so unless Godot max returns int when argument is a float which wouldnt make sense
         Srgba::new(
             a.x + b.x * cos(6.28318 * (c.x * (i as f32 / n) + d.x)),
             a.y + b.y * cos(6.28318 * (c.y * (i as f32 / n) + d.y)),
@@ -69,8 +69,8 @@ pub(crate) fn generate_random_colorscheme<const NUM_COLORS: usize>(
     let seed_colors: [_; NUM_COLORS] = generate_colorscheme_base(rng, hue_diff, saturation);
     array::from_fn(|i| {
         seed_colors[i]
-            .darker(i as f32 / a * b)
-            .lighter((1.0 - (i as f32 / c)) * d)
+            .mix(&Color::BLACK, i as f32 / a * b)
+            .mix(&Color::WHITE, (1.0 - (i as f32 / c)) * d)
     })
 }
 

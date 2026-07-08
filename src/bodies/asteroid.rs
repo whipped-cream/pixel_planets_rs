@@ -73,7 +73,7 @@ impl Random for AsteroidParams {
 //     let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, 0.7);
 //
 //     array::from_fn(|i| {
-//         seed_colors[i].darker(i as f32 / 3.0).lighter(1.0 - (i as f32 / 3.0) * 0.2)
+//         seed_colors[i].mix(&Color::BLACK, (i as f32 / 3.0).mix(&Color::WHITE, (1.0 - (i as f32 / 3.0) * 0.2)
 //     })
 // }
 

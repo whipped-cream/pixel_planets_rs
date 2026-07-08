@@ -56,12 +56,12 @@ impl Random for LavaWorldParams {
         let seed_colors: [_; 2] = generate_colorscheme_base(rng, hue_diff, saturation);
 
         let land_colors = array::from_fn(|i| {
-            let new_color = Hsva::from(seed_colors[0].darker(i as f32 / 4.0));
-            Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)), new_color.saturation, new_color.value).into()
+            let new_color = Hsva::from(seed_colors[0].mix(&Color::BLACK, i as f32 / 4.0));
+            Color::hsv(new_color.hue + (0.2 * (i as f32 / 4.0)) * 360.0, new_color.saturation, new_color.value)
         });
         let lava_colors = array::from_fn(|i| {
-            let new_color = Hsva::from(seed_colors[1].darker(i as f32 / 3.0));
-            Hsva::hsv(new_color.hue + (0.2 * (i as f32 / 3.0)), new_color.saturation, new_color.value).into()
+            let new_color = Hsva::from(seed_colors[1].mix(&Color::BLACK, i as f32 / 3.0));
+            Color::hsv(new_color.hue + (0.2 * (i as f32 / 3.0)) * 360.0, new_color.saturation, new_color.value)
         });
 
         LavaWorldParams {
