@@ -2,22 +2,28 @@ use bevy::prelude::*;
 
 pub mod bodies;
 
+pub use bodies::{
+    terran, martian, islands, noatmosphere, stormygasgiant, bandedgasgiant,
+    iceworld, lavaworld, asteroid, blackhole, galaxy, star,
+    PixelPlanet, BodyType
+};
+
 pub struct PixelPlanetsPlugin;
 impl Plugin for PixelPlanetsPlugin {
     fn build(&self, app: &mut App) {
         info!("Building PixelPlanetsPlugin");
-        bodies::terran::build(app);
-        bodies::martian::build(app);
-        bodies::islands::build(app);
-        bodies::noatmosphere::build(app);
-        bodies::stormygasgiant::build(app);
-        bodies::bandedgasgiant::build(app);
-        bodies::iceworld::build(app);
-        bodies::lavaworld::build(app);
-        bodies::asteroid::build(app);
-        bodies::blackhole::build(app);
-        bodies::galaxy::build(app);
-        bodies::star::build(app);
+        terran::build(app);
+        martian::build(app);
+        islands::build(app);
+        noatmosphere::build(app);
+        stormygasgiant::build(app);
+        bandedgasgiant::build(app);
+        iceworld::build(app);
+        lavaworld::build(app);
+        asteroid::build(app);
+        blackhole::build(app);
+        galaxy::build(app);
+        star::build(app);
     }
 }
 
