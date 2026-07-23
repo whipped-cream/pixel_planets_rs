@@ -57,7 +57,7 @@ impl Random for StormyGasGiantParams {
                 colors: array::from_fn(|i| {
                     seed_colors[i + 4]
                         .mix(&Color::BLACK, i as f32 / 4.0)
-                        .mix(&Color::WHITE, 1.0 - (i as f32 / 4.0) * 0.5)
+                        .mix(&Color::WHITE, (1.0 - (i as f32 / 4.0)) * 0.5)
                 }),
                 seed: rng.random_range(0.0..100.0),
                 ..CloudParams::storm_default()
