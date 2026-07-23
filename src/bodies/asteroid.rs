@@ -1,4 +1,4 @@
-use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
+use crate::bodies::{generate_random_colorscheme, CommonParams, NewWithCommon, PixelPlanet, PixelPlanetParams, Random};
 use bevy::asset::{Asset, Assets};
 use bevy::color::{LinearRgba, Srgba};
 use bevy::math::Vec2;
@@ -22,24 +22,24 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct AsteroidParams {
-    pub pixels: f32,
-    pub mesh_diameter: Option<f32>,
+    pub common_params: CommonParams,
     pub should_dither: bool,
-    pub rotation: f32,
-    pub light_origin: Vec2,
     pub colors: [Color; 3],
     pub size: f32,
     pub seed: f32,
     pub octaves: u32
 }
-impl Default for AsteroidParams {
-    fn default() -> Self {
+impl PixelPlanetParams for AsteroidParams {
+    fn common_params(&self) -> &CommonParams { &self.common_params }
+    fn common_params_mut(&mut self) -> &mut CommonParams { &mut self.common_params }
+    // fn seed(&self) -> &f32 { &self.seed }
+    // fn seed_mut(&mut self) -> &mut f32 { &mut self.seed }
+}
+impl NewWithCommon for AsteroidParams {
+    fn new(common_params: CommonParams) -> Self {
         AsteroidParams {
-            pixels: 100.0,
-            mesh_diameter: None,
+            common_params,
             should_dither: true,
-            rotation: 0.0,
-            light_origin: Vec2::new(0.0, 0.0),
             colors: [
                 Srgba::hex("a3a7c2").unwrap().into(),
                 Srgba::hex("4c6885").unwrap().into(),
@@ -52,11 +52,11 @@ impl Default for AsteroidParams {
     }
 }
 impl Random for AsteroidParams {
-    fn random(rng: &mut impl Rng) -> Self {
+    fn random(rng: &mut impl Rng, common_params: CommonParams) -> Self {
         AsteroidParams {
             colors: generate_random_colorscheme(rng, 0.3..0.6, 0.7, 3.0, 1.0, 3.0, 0.2),
             seed: rng.random_range(0.0..100.0),
-            ..default()
+            ..Self::new(common_params)
         }
     }
 
@@ -89,7 +89,7 @@ fn on_asteroid_added(
     let params = query.get(trigger.entity).unwrap();
 
     // TODO: Can we do this without manually maintaining meshes
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0)));
     let asteroid = MeshMaterial2d(materials.add(Asteroid::from(params)));
 
     #[cfg(feature = "dynamic")]
@@ -144,9 +144,9 @@ impl From<&AsteroidParams> for Asteroid {
     fn from(value: &AsteroidParams) -> Self {
         Asteroid {
             params: AsteroidUniform {
-                pixels: value.pixels,
-                rotation: value.rotation,
-                light_origin: value.light_origin,
+                pixels: value.common_params.pixels,
+                rotation: value.common_params.rotation,
+                light_origin: value.common_params.light_origin,
                 should_dither: if value.should_dither { 1 } else { 0 },
                 colors: value.colors.map(|c| c.to_linear()),
                 size: value.size,

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy::sprite_render::Material2dPlugin;
 use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
-use crate::bodies::{generate_colorscheme_base, PixelPlanet, Random};
+use crate::bodies::{generate_colorscheme_base, CommonParams, NewWithCommon, PixelPlanet, PixelPlanetParams, Random};
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Clouds>>() {
@@ -19,29 +19,25 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct StormyGasGiantParams {
-    pub pixels: f32,
-    pub mesh_diameter: Option<f32>,
-    pub rotation: f32,
-    pub time_speed: f32,
-    pub light_origin: Vec2,
+    pub common_params: CommonParams,
     pub base_layer: CloudParams,
     pub storm_layer: CloudParams
 }
-impl Default for StormyGasGiantParams {
-    fn default() -> Self {
+impl PixelPlanetParams for StormyGasGiantParams {
+    fn common_params(&self) -> &CommonParams { &self.common_params }
+    fn common_params_mut(&mut self) -> &mut CommonParams { &mut self.common_params }
+}
+impl NewWithCommon for StormyGasGiantParams {
+    fn new(common_params: CommonParams) -> Self {
         StormyGasGiantParams {
-            pixels: 100.0,
-            mesh_diameter: None,
-            rotation: 0.0,
-            time_speed: 1.0,
-            light_origin: Vec2::new(0.25, 0.25),
+            common_params,
             base_layer: CloudParams::base_default(),
             storm_layer: CloudParams::storm_default(),
         }
     }
 }
 impl Random for StormyGasGiantParams {
-    fn random(rng: &mut impl Rng) -> Self {
+    fn random(rng: &mut impl Rng, common_params: CommonParams) -> Self {
         let hue_diff = rng.random_range(0.3..0.8);
         let seed_colors: [Color; 8] = generate_colorscheme_base(rng, hue_diff, 1.0);
 
@@ -64,7 +60,7 @@ impl Random for StormyGasGiantParams {
                 seed: rng.random_range(0.0..100.0),
                 ..CloudParams::storm_default()
             },
-            ..default()
+            ..Self::new(common_params)
         }
     }
 }
@@ -146,7 +142,7 @@ fn on_stormy_gas_giant_added(
 
     let params = query.get(trigger.entity).unwrap();
 
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0)));
     let base_layer = MeshMaterial2d(materials.add(make_base_layer(params)));
     let storm_layer = MeshMaterial2d(materials.add(make_storm_layer(params)));
 
@@ -187,12 +183,12 @@ fn on_stormy_gas_giant_changed(
 fn make_base_layer(value: &StormyGasGiantParams) -> Clouds {
     Clouds {
         params: CloudsUniform {
-            pixels: value.pixels,
-            rotation: value.rotation + value.base_layer.rotation_offset,
+            pixels: value.common_params.pixels,
+            rotation: value.common_params.rotation + value.base_layer.rotation_offset,
             cloud_cover: value.base_layer.cloud_cover,
             cloud_curve: value.base_layer.cloud_curve,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed * value.base_layer.time_speed_multiplier * value.base_layer.size.round() * 2.0,
+            light_origin: value.common_params.light_origin,
+            time_speed: value.common_params.time_speed * value.base_layer.time_speed_multiplier * value.base_layer.size.round() * 2.0,
             stretch: value.base_layer.stretch,
             light_border_1: value.base_layer.light_border_1,
             light_border_2: value.base_layer.light_border_2,
@@ -206,12 +202,12 @@ fn make_base_layer(value: &StormyGasGiantParams) -> Clouds {
 fn make_storm_layer(value: &StormyGasGiantParams) -> Clouds {
     Clouds {
         params: CloudsUniform {
-            pixels: value.pixels,
-            rotation: value.rotation + value.storm_layer.rotation_offset,
+            pixels: value.common_params.pixels,
+            rotation: value.common_params.rotation + value.storm_layer.rotation_offset,
             cloud_cover: value.storm_layer.cloud_cover,
             cloud_curve: value.storm_layer.cloud_curve,
-            light_origin: value.light_origin,
-            time_speed: value.time_speed * value.storm_layer.time_speed_multiplier * value.storm_layer.size.round() * 2.0,
+            light_origin: value.common_params.light_origin,
+            time_speed: value.common_params.time_speed * value.storm_layer.time_speed_multiplier * value.storm_layer.size.round() * 2.0,
             stretch: value.storm_layer.stretch,
             light_border_1: value.storm_layer.light_border_1,
             light_border_2: value.storm_layer.light_border_2,

@@ -1,14 +1,13 @@
 use std::array;
 use bevy::asset::{Asset, Assets};
 use bevy::color::{LinearRgba, Srgba};
-use bevy::math::{vec2, Vec2};
 use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
 use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
-use crate::bodies::{generate_colorscheme_base, PixelPlanet, Random};
+use crate::bodies::{generate_colorscheme_base, CommonParams, NewWithCommon, PixelPlanet, PixelPlanetParams, Random};
 
 pub fn build(app: &mut App) {
     app
@@ -25,29 +24,25 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct TerranParams {
-    pub pixels: f32,
-    pub mesh_diameter: Option<f32>,
-    pub rotation: f32,
-    pub time_speed: f32,
-    pub light_origin: Vec2,
+    pub common_params: CommonParams,
     pub land_params: LandParams,
     pub cloud_params: CloudParams
 }
-impl Default for TerranParams {
-    fn default() -> Self {
+impl PixelPlanetParams for TerranParams {
+    fn common_params(&self) -> &CommonParams { &self.common_params }
+    fn common_params_mut(&mut self) -> &mut CommonParams { &mut self.common_params }
+}
+impl NewWithCommon for TerranParams {
+    fn new(common_params: CommonParams) -> Self {
         TerranParams {
-            pixels: 100.0,
-            mesh_diameter: None,
-            rotation: 0.0,
-            time_speed: 1.0,
-            light_origin: vec2(0.39, 0.39),
+            common_params,
             land_params: Default::default(),
             cloud_params: Default::default()
         }
     }
 }
 impl Random for TerranParams {
-    fn random(rng: &mut impl Rng) -> Self {
+    fn random(rng: &mut impl Rng, common_params: CommonParams) -> Self {
         let hue_diff = rng.random_range(0.7..1.0);
         let saturation = rng.random_range(0.45..0.55);
         let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, saturation);
@@ -75,7 +70,7 @@ impl Random for TerranParams {
                 seed: rng.random_range(0.0..100.0),
                 ..default()
             },
-            ..default()
+            ..Self::new(common_params)
         }
     }
 }
@@ -181,7 +176,7 @@ fn on_terran_added(
     let params = query.get(trigger.entity).unwrap();
 
     // TODO: Can we do this without manually maintaining meshes
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0)));
     let land = MeshMaterial2d(land_materials.add(Land::from(params)));
     let cloud = MeshMaterial2d(cloud_materials.add(Clouds::from(params)));
 
@@ -251,10 +246,10 @@ impl From<&TerranParams> for Land {
     fn from(value: &TerranParams) -> Self {
         Land {
             params: LandUniform {
-                pixels: value.pixels,
-                rotation: value.rotation + value.land_params.rotation_offset,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.land_params.time_speed_multiplier * value.land_params.size.round() * 2.0,
+                pixels: value.common_params.pixels,
+                rotation: value.common_params.rotation + value.land_params.rotation_offset,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.land_params.time_speed_multiplier * value.land_params.size.round() * 2.0,
                 dither_size: value.land_params.dither_size.unwrap_or(1.0),
                 should_dither: if value.land_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.land_params.light_border_1,
@@ -273,11 +268,11 @@ impl From<&TerranParams> for Clouds {
     fn from(value: &TerranParams) -> Self {
         Clouds {
             params: CloudsUniform {
-                pixels: value.pixels,
-                rotation: value.rotation + value.cloud_params.rotation_offset,
+                pixels: value.common_params.pixels,
+                rotation: value.common_params.rotation + value.cloud_params.rotation_offset,
                 cloud_cover: value.cloud_params.cloud_cover,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.cloud_params.time_speed_multiplier * value.cloud_params.size.round() * 2.0,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.cloud_params.time_speed_multiplier * value.cloud_params.size.round() * 2.0,
                 stretch: value.cloud_params.stretch,
                 cloud_curve: value.cloud_params.cloud_curve,
                 light_border_1: value.cloud_params.light_border_1,

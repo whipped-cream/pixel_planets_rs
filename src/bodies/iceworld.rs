@@ -6,7 +6,7 @@ use bevy::sprite_render::{Material2d, Material2dPlugin};
 use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::clouds::{Clouds, CloudsUniform};
 use crate::bodies::building_blocks::planetunder::{PlanetUnder, PlanetUnderUniform};
-use crate::bodies::{generate_colorscheme_base, PixelPlanet, Random};
+use crate::bodies::{generate_colorscheme_base, CommonParams, NewWithCommon, PixelPlanet, PixelPlanetParams, Random};
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<PlanetUnder>>() {
@@ -26,23 +26,19 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct IceWorldParams {
-    pub pixels: f32,
-    pub mesh_diameter: Option<f32>,
-    pub rotation: f32,
-    pub time_speed: f32,
-    pub light_origin: Vec2,
+    pub common_params: CommonParams,
     pub land_params: LandParams,
     pub lake_params: LakeParams,
     pub cloud_params: CloudParams
 }
-impl Default for IceWorldParams {
-    fn default() -> Self {
+impl PixelPlanetParams for IceWorldParams {
+    fn common_params(&self) -> &CommonParams { &self.common_params }
+    fn common_params_mut(&mut self) -> &mut CommonParams { &mut self.common_params }
+}
+impl NewWithCommon for IceWorldParams {
+    fn new(common_params: CommonParams) -> Self {
         IceWorldParams {
-            pixels: 100.0,
-            mesh_diameter: None,
-            rotation: 0.0,
-            time_speed: 1.0,
-            light_origin: Vec2::new(0.3, 0.3),
+            common_params,
             land_params: Default::default(),
             lake_params: Default::default(),
             cloud_params: Default::default(),
@@ -50,7 +46,7 @@ impl Default for IceWorldParams {
     }
 }
 impl Random for IceWorldParams {
-    fn random(rng: &mut impl Rng) -> Self {
+    fn random(rng: &mut impl Rng, common_params: CommonParams) -> Self {
         let hue_diff = rng.random_range(0.7..1.0);
         let saturation = rng.random_range(0.45..0.55);
         let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, saturation);
@@ -80,7 +76,7 @@ impl Random for IceWorldParams {
                 seed: rng.random_range(0.0..100.0),
                 ..default()
             },
-            ..default()
+            ..Self::new(common_params)
         }
     }
 }
@@ -208,7 +204,7 @@ fn on_ice_world_added(
 
     let params = query.get(trigger.entity).unwrap();
 
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0)));
     let land = MeshMaterial2d(land_materials.add(PlanetUnder::from(params)));
     let lakes = MeshMaterial2d(lake_materials.add(Lakes::from(params)));
     let clouds = MeshMaterial2d(cloud_materials.add(Clouds::from(params)));
@@ -262,10 +258,10 @@ impl From<&IceWorldParams> for PlanetUnder {
     fn from(value: &IceWorldParams) -> Self {
         PlanetUnder {
             params: PlanetUnderUniform {
-                pixels: value.pixels,
-                rotation: value.rotation + value.land_params.rotation_offset,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.land_params.time_speed_multiplier * value.land_params.size.round() * 2.0,
+                pixels: value.common_params.pixels,
+                rotation: value.common_params.rotation + value.land_params.rotation_offset,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.land_params.time_speed_multiplier * value.land_params.size.round() * 2.0,
                 dither_size: value.land_params.dither_size.unwrap_or(1.0),
                 light_border_1: value.land_params.light_border_1,
                 light_border_2: value.land_params.light_border_2,
@@ -309,10 +305,10 @@ impl From<&IceWorldParams> for Lakes {
                 colors: value.lake_params.colors.map(|c| c.to_linear()),
                 light_border_1: value.lake_params.light_border_1,
                 light_border_2: value.lake_params.light_border_2,
-                rotation: value.rotation + value.lake_params.rotation_offset,
-                pixels: value.pixels,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.lake_params.time_speed_multiplier * value.lake_params.size.round() * 2.0,
+                rotation: value.common_params.rotation + value.lake_params.rotation_offset,
+                pixels: value.common_params.pixels,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.lake_params.time_speed_multiplier * value.lake_params.size.round() * 2.0,
                 size: value.lake_params.size,
                 seed: value.lake_params.seed,
                 octaves: value.lake_params.octaves,
@@ -325,11 +321,11 @@ impl From<&IceWorldParams> for Clouds {
     fn from(value: &IceWorldParams) -> Self {
         Clouds {
             params: CloudsUniform {
-                pixels: value.pixels,
-                rotation: value.rotation + value.cloud_params.rotation_offset,
+                pixels: value.common_params.pixels,
+                rotation: value.common_params.rotation + value.cloud_params.rotation_offset,
                 cloud_cover: value.cloud_params.cloud_cover,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.cloud_params.time_speed_multiplier * value.cloud_params.size.round() * 2.0,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.cloud_params.time_speed_multiplier * value.cloud_params.size.round() * 2.0,
                 stretch: value.cloud_params.stretch,
                 cloud_curve: value.cloud_params.cloud_curve,
                 light_border_1: value.cloud_params.light_border_1,

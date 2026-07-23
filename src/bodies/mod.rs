@@ -22,22 +22,51 @@ pub mod star;
 #[derive(Component, Default)]
 pub struct PixelPlanet;
 
+/// Parameters which exist on (almost) all BodyParams structs. Also parameters which don't make sense as defaults
+/// While all structs also have a seed, including that here doesn't make much sense as each body has a sensible default
+#[derive(Debug, Clone)]
 pub struct CommonParams {
     pub pixels: f32,
     pub mesh_diameter: Option<f32>,
+    pub rotation: f32,
+    pub time_speed: f32,
+    pub light_origin: Vec2,
+}
+// Just using this to allow the ..default() syntax.
+impl Default for CommonParams {
+    fn default() -> Self {
+        CommonParams {
+            pixels: 100.0,
+            mesh_diameter: None,
+            rotation: 0.0,
+            time_speed: 1.0,
+            light_origin: Vec2::new(0.39, 0.39),
+        }
+    }
+}
+pub trait PixelPlanetParams {
+    fn common_params(&self) -> &CommonParams;
+    fn common_params_mut(&mut self) -> &mut CommonParams;
 
+    // fn seed(&self) -> &f32;
+    // fn seed_mut(&mut self) -> &mut f32;
 }
 
 /// The Randomizable trait states that a struct can be constructed randomly
-pub trait Random {
+pub trait Random: Sized {
     /// Generate a random body.
     /// The generated struct is guaranteed to be identical between calls if the state of rng is the same.
-    fn random(rng: &mut impl Rng) -> Self;
+    fn random(rng: &mut impl Rng, common_params: CommonParams) -> Self;
     // Generate a random body with the default colors.
     // The generated struct is guaranteed to be identical between calls if the state of rng is the same.
     // As the normal randomization logic is used in this function, the generated struct will match
     // that of `random`, but with the default colors
     // fn random_default_colors(rng: &mut impl Rng) -> Self;
+}
+/// Trait that specifies that a planet can be constructed by supplying only a set of common parameters
+/// All other parameters take on their default values unless specifically changed
+pub trait NewWithCommon {
+    fn new(common_params: CommonParams) -> Self;
 }
 
 // Using ideas from https://www.iquilezles.org/www/articles/palettes/palettes.htm

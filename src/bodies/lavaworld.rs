@@ -6,7 +6,7 @@ use bevy::sprite_render::{Material2d, Material2dPlugin};
 use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::craters::{Craters, CratersUniform};
 use crate::bodies::building_blocks::surface::{Surface, SurfaceUniform};
-use crate::bodies::{generate_colorscheme_base, PixelPlanet, Random};
+use crate::bodies::{generate_colorscheme_base, CommonParams, NewWithCommon, PixelPlanet, PixelPlanetParams, Random};
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Surface>>() {
@@ -27,23 +27,19 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct LavaWorldParams {
-    pub pixels: f32,
-    pub mesh_diameter: Option<f32>,
-    pub rotation: f32,
-    pub time_speed: f32,
-    pub light_origin: Vec2,
+    pub common_params: CommonParams,
     pub surface_params: SurfaceParams,
     pub craters_params: CratersParams,
     pub lava_rivers_params: LavaRiversParams
 }
-impl Default for LavaWorldParams {
-    fn default() -> Self {
+impl PixelPlanetParams for LavaWorldParams {
+    fn common_params(&self) -> &CommonParams { &self.common_params }
+    fn common_params_mut(&mut self) -> &mut CommonParams { &mut self.common_params }
+}
+impl NewWithCommon for LavaWorldParams {
+    fn new(common_params: CommonParams) -> Self {
         LavaWorldParams {
-            pixels: 100.0,
-            mesh_diameter: None,
-            rotation: 0.0,
-            time_speed: 1.0,
-            light_origin: Vec2::new(0.3, 0.3),
+            common_params,
             surface_params: Default::default(),
             craters_params: Default::default(),
             lava_rivers_params: Default::default()
@@ -51,7 +47,7 @@ impl Default for LavaWorldParams {
     }
 }
 impl Random for LavaWorldParams {
-    fn random(rng: &mut impl Rng) -> Self {
+    fn random(rng: &mut impl Rng, common_params: CommonParams) -> Self {
         let saturation = rng.random_range(0.6..1.0);
         let hue_diff = rng.random_range(0.7..0.8);
         let seed_colors: [_; 2] = generate_colorscheme_base(rng, hue_diff, saturation);
@@ -81,7 +77,7 @@ impl Random for LavaWorldParams {
                 seed: rng.random_range(0.0..100.0),
                 ..default()
             },
-            ..default()
+            ..Self::new(common_params)
         }
     }
 }
@@ -199,7 +195,7 @@ fn on_lava_world_added(
 
     let params = query.get(trigger.entity).unwrap();
 
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0)));
     let surface = MeshMaterial2d(surface_materials.add(Surface::from(params)));
     let craters = MeshMaterial2d(craters_materials.add(Craters::from(params)));
     let lava_rivers = MeshMaterial2d(lava_rivers_materials.add(LavaRivers::from(params)));
@@ -254,10 +250,10 @@ impl From<&LavaWorldParams> for Surface {
     fn from(value: &LavaWorldParams) -> Self {
         Surface {
             params: SurfaceUniform {
-                pixels: value.pixels,
-                rotation: value.rotation + value.surface_params.rotation_offset,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.surface_params.time_speed_multiplier * value.surface_params.size.round() * 2.0,
+                pixels: value.common_params.pixels,
+                rotation: value.common_params.rotation + value.surface_params.rotation_offset,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.surface_params.time_speed_multiplier * value.surface_params.size.round() * 2.0,
                 dither_size: value.surface_params.dither_size.unwrap_or(1.0),
                 should_dither: if value.surface_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.surface_params.light_border_1,
@@ -275,10 +271,10 @@ impl From<&LavaWorldParams> for Craters {
     fn from(value: &LavaWorldParams) -> Self {
         Craters {
             params: CratersUniform {
-                pixels: value.pixels * 87.419 / 100.0,
-                rotation: value.rotation + value.craters_params.rotation_offset,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.craters_params.time_speed_multiplier * value.craters_params.size.round() * 2.0,
+                pixels: value.common_params.pixels * 87.419 / 100.0,
+                rotation: value.common_params.rotation + value.craters_params.rotation_offset,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.craters_params.time_speed_multiplier * value.craters_params.size.round() * 2.0,
                 light_border: value.craters_params.light_border,
                 colors: value.craters_params.colors.map(|c| c.to_linear()),
                 size: value.craters_params.size,
@@ -314,10 +310,10 @@ impl From<&LavaWorldParams> for LavaRivers {
     fn from(value: &LavaWorldParams) -> Self {
         LavaRivers {
             params: RiversUniform {
-                pixels: value.pixels,
-                rotation: value.rotation + value.lava_rivers_params.rotation_offset,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.lava_rivers_params.time_speed_multiplier * value.lava_rivers_params.size.round() * 2.0,
+                pixels: value.common_params.pixels,
+                rotation: value.common_params.rotation + value.lava_rivers_params.rotation_offset,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.lava_rivers_params.time_speed_multiplier * value.lava_rivers_params.size.round() * 2.0,
                 light_border_1: value.lava_rivers_params.light_border_1,
                 light_border_2: value.lava_rivers_params.light_border_2,
                 river_cutoff: value.lava_rivers_params.river_cutoff,

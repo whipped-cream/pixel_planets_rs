@@ -3,7 +3,7 @@ use bevy::sprite_render::Material2dPlugin;
 use rand::{Rng, RngExt};
 use crate::bodies::building_blocks::craters::{Craters, CratersUniform};
 use crate::bodies::building_blocks::surface::{Surface, SurfaceUniform};
-use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
+use crate::bodies::{generate_random_colorscheme, CommonParams, NewWithCommon, PixelPlanet, PixelPlanetParams, Random};
 
 pub fn build(app: &mut App) {
     if !app.is_plugin_added::<Material2dPlugin<Surface>>() {
@@ -22,29 +22,25 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct NoAtmosphereParams {
-    pub pixels: f32,
-    pub mesh_diameter: Option<f32>,
-    pub rotation: f32,
-    pub time_speed: f32,
-    pub light_origin: Vec2,
+    pub common_params: CommonParams,    
     pub surface_params: SurfaceParams,
     pub craters_params: CratersParams,
 }
-impl Default for NoAtmosphereParams {
-    fn default() -> Self {
+impl PixelPlanetParams for NoAtmosphereParams {
+    fn common_params(&self) -> &CommonParams { &self.common_params }
+    fn common_params_mut(&mut self) -> &mut CommonParams { &mut self.common_params }
+}
+impl NewWithCommon for NoAtmosphereParams {
+    fn new(common_params: CommonParams) -> Self {
         NoAtmosphereParams {
-            pixels: 100.0,
-            mesh_diameter: None,
-            rotation: 0.0,
-            time_speed: 1.0,
-            light_origin: Vec2::new(0.25, 0.25),
+            common_params,
             surface_params: Default::default(),
             craters_params: Default::default(),
         }
     }
 }
 impl Random for NoAtmosphereParams {
-    fn random(rng: &mut impl Rng) -> Self {
+    fn random(rng: &mut impl Rng, common_params: CommonParams) -> Self {
         let seed_colors = generate_random_colorscheme(rng, 0.3..0.6, 0.7, 3.0, 1.0, 3.0, 0.2);
         NoAtmosphereParams {
             surface_params: SurfaceParams {
@@ -57,7 +53,7 @@ impl Random for NoAtmosphereParams {
                 seed: rng.random_range(0.0..100.0),
                 ..default()
             },
-            ..default()
+            ..Self::new(common_params)
         }
     }
 }
@@ -141,7 +137,7 @@ fn on_no_atmosphere_added(
 
     let params = query.get(trigger.entity).unwrap();
 
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0)));
     let surface = MeshMaterial2d(surface_materials.add(Surface::from(params)));
     let craters = MeshMaterial2d(craters_materials.add(Craters::from(params)));
 
@@ -185,10 +181,10 @@ impl From<&NoAtmosphereParams> for Surface {
     fn from(value: &NoAtmosphereParams) -> Self {
         Surface {
             params: SurfaceUniform {
-                pixels: value.pixels,
-                rotation: value.rotation + value.surface_params.rotation_offset,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.surface_params.time_speed_multiplier * value.surface_params.size.round() * 2.0,
+                pixels: value.common_params.pixels,
+                rotation: value.common_params.rotation + value.surface_params.rotation_offset,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.surface_params.time_speed_multiplier * value.surface_params.size.round() * 2.0,
                 dither_size: value.surface_params.dither_size.unwrap_or(1.0),
                 should_dither: if value.surface_params.dither_size.is_some() { 1 } else { 0 },
                 light_border_1: value.surface_params.light_border_1,
@@ -206,10 +202,10 @@ impl From<&NoAtmosphereParams> for Craters {
     fn from(value: &NoAtmosphereParams) -> Self {
         Craters {
             params: CratersUniform {
-                pixels: value.pixels * 87.419 / 100.0, // I don't think this needs to have a multiplier but if you have need for it I am open to accepting a PR
-                rotation: value.rotation + value.craters_params.rotation_offset,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.craters_params.time_speed_multiplier * value.craters_params.size.round() * 2.0,
+                pixels: value.common_params.pixels * 87.419 / 100.0, // I don't think this needs to have a multiplier but if you have need for it I am open to accepting a PR
+                rotation: value.common_params.rotation + value.craters_params.rotation_offset,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.craters_params.time_speed_multiplier * value.craters_params.size.round() * 2.0,
                 light_border: value.craters_params.light_border,
                 colors: value.craters_params.colors.map(|c| c.to_linear()),
                 size: value.craters_params.size,

@@ -1,7 +1,7 @@
 use std::array;
 // TODO: The rings on this shader dont quite match the Godot and I'm not 100% sure why
 // The rings on the Godot are rougher on the edges but this one makes very smooth edges.
-use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
+use crate::bodies::{generate_random_colorscheme, CommonParams, NewWithCommon, PixelPlanet, PixelPlanetParams, Random};
 use bevy::prelude::*;
 use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
@@ -23,31 +23,27 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct BandedGasGiantParams {
-    pub pixels: f32,
-    pub mesh_diameter: Option<f32>,
-    pub rotation: f32,
+    pub common_params: CommonParams,    
     pub ring_size_multiplier: f32,
-    pub time_speed: f32,
-    pub light_origin: Vec2,
     pub base_layer_params: BaseParams,
     pub ring_params: RingParams
 }
-impl Default for BandedGasGiantParams {
-    fn default() -> Self {
+impl PixelPlanetParams for BandedGasGiantParams {
+    fn common_params(&self) -> &CommonParams { &self.common_params }
+    fn common_params_mut(&mut self) -> &mut CommonParams { &mut self.common_params }
+}
+impl NewWithCommon for BandedGasGiantParams {
+    fn new(common_params: CommonParams) -> Self {
         BandedGasGiantParams {
-            pixels: 100.0,
-            mesh_diameter: None,
-            rotation: 0.0,
+            common_params,
             ring_size_multiplier: 3.0,
-            time_speed: 1.0,
-            light_origin: Vec2::new(-0.1, 0.3),
             base_layer_params: Default::default(),
             ring_params: Default::default(),
         }
     }
 }
 impl Random for BandedGasGiantParams {
-    fn random(rng: &mut impl Rng) -> Self {
+    fn random(rng: &mut impl Rng, common_params: CommonParams) -> Self {
         let colors: [_; 6] = generate_random_colorscheme(rng, 0.3..0.55, 1.4, 7.0, 1.0,6.0, 0.3);
         BandedGasGiantParams {
             base_layer_params: BaseParams {
@@ -60,7 +56,7 @@ impl Random for BandedGasGiantParams {
                 seed: rng.random_range(0.0..100.0),
                 ..default()
             },
-            ..default()
+            ..Self::new(common_params)
         }
     }
 
@@ -196,8 +192,8 @@ fn on_banded_gas_giant_added(
 
     let params = query.get(trigger.entity).unwrap();
 
-    let base_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
-    let ring_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0 * params.ring_size_multiplier)));
+    let base_mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0)));
+    let ring_mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0 * params.ring_size_multiplier)));
     let base = MeshMaterial2d(base_layer_materials.add(Base::from(params)));
     let ring = MeshMaterial2d(ring_materials.add(Ring::from(params)));
 
@@ -269,12 +265,12 @@ impl From<&BandedGasGiantParams> for Base {
     fn from(value: &BandedGasGiantParams) -> Self {
         Base {
             params: BaseUniform {
-                pixels: value.pixels,
-                rotation: value.rotation + value.base_layer_params.rotation_offset,
-                light_origin: value.light_origin,
+                pixels: value.common_params.pixels,
+                rotation: value.common_params.rotation + value.base_layer_params.rotation_offset,
+                light_origin: value.common_params.light_origin,
                 cloud_cover: value.base_layer_params.cloud_cover,
                 cloud_curve: value.base_layer_params.cloud_curve,
-                time_speed: value.time_speed * value.base_layer_params.time_speed_multiplier * value.base_layer_params.size.round() * 2.0,
+                time_speed: value.common_params.time_speed * value.base_layer_params.time_speed_multiplier * value.base_layer_params.size.round() * 2.0,
                 stretch: value.base_layer_params.stretch,
                 light_border_1: value.base_layer_params.light_border_1,
                 light_border_2: value.base_layer_params.light_border_2,
@@ -321,10 +317,10 @@ impl From<&BandedGasGiantParams> for Ring {
     fn from(value: &BandedGasGiantParams) -> Self {
         Ring {
             params: RingUniform {
-                pixels: value.pixels * value.ring_size_multiplier,
-                rotation: value.rotation + value.ring_params.rotation_offset,
-                light_origin: value.light_origin,
-                time_speed: value.time_speed * value.ring_params.time_speed_multiplier, // This is deliberately different from the others to match the Godot
+                pixels: value.common_params.pixels * value.ring_size_multiplier,
+                rotation: value.common_params.rotation + value.ring_params.rotation_offset,
+                light_origin: value.common_params.light_origin,
+                time_speed: value.common_params.time_speed * value.ring_params.time_speed_multiplier, // This is deliberately different from the others to match the Godot
                 light_border_1: value.ring_params.light_border_1,
                 light_border_2: value.ring_params.light_border_2,
                 ring_width: value.ring_params.ring_width,

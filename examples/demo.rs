@@ -15,7 +15,7 @@ use pixel_planets_rs::bodies::blackhole::BlackHoleParams;
 use pixel_planets_rs::bodies::galaxy::GalaxyParams;
 use pixel_planets_rs::bodies::iceworld::IceWorldParams;
 use pixel_planets_rs::bodies::lavaworld::LavaWorldParams;
-use pixel_planets_rs::bodies::Random;
+use pixel_planets_rs::bodies::{CommonParams, NewWithCommon, Random};
 use pixel_planets_rs::bodies::star::StarParams;
 
 
@@ -66,36 +66,44 @@ fn setup(mut commands: Commands) {
 }
 
 fn spawn_planet(planet_type: &BodyType, commands: &mut Commands) -> Entity {
+    let common_params = CommonParams {
+        pixels: 500.0,
+        ..default()
+    };
     match planet_type {
-        BodyType::Terran => commands.spawn((TerranParams::default(), Transform::default())).id(),
-        BodyType::Asteroid => commands.spawn((AsteroidParams::default(), Transform::default())).id(),
-        BodyType::BandedGasGiant => commands.spawn((BandedGasGiantParams::default(), Transform::default())).id(),
-        BodyType::Martian => commands.spawn((MartianParams::default(), Transform::default())).id(),
-        BodyType::Islands => commands.spawn((IslandsParams::default(), Transform::default())).id(),
-        BodyType::NoAtmosphere => commands.spawn((NoAtmosphereParams::default(), Transform::default())).id(),
-        BodyType::StormyGasGiant => commands.spawn((StormyGasGiantParams::default(), Transform::default())).id(),
-        BodyType::BlackHole => commands.spawn((BlackHoleParams::default(), Transform::default())).id(),
-        BodyType::Galaxy => commands.spawn((GalaxyParams::default(), Transform::default())).id(),
-        BodyType::IceWorld => commands.spawn((IceWorldParams::default(), Transform::default())).id(),
-        BodyType::LavaWorld => commands.spawn((LavaWorldParams::default(), Transform::default())).id(),
-        BodyType::Star => commands.spawn((StarParams::default(), Transform::default())).id(),
+        BodyType::Terran => commands.spawn((TerranParams::new(common_params), Transform::default())).id(),
+        BodyType::Asteroid => commands.spawn((AsteroidParams::new(common_params), Transform::default())).id(),
+        BodyType::BandedGasGiant => commands.spawn((BandedGasGiantParams::new(common_params), Transform::default())).id(),
+        BodyType::Martian => commands.spawn((MartianParams::new(common_params), Transform::default())).id(),
+        BodyType::Islands => commands.spawn((IslandsParams::new(common_params), Transform::default())).id(),
+        BodyType::NoAtmosphere => commands.spawn((NoAtmosphereParams::new(common_params), Transform::default())).id(),
+        BodyType::StormyGasGiant => commands.spawn((StormyGasGiantParams::new(common_params), Transform::default())).id(),
+        BodyType::BlackHole => commands.spawn((BlackHoleParams::new(common_params), Transform::default())).id(),
+        BodyType::Galaxy => commands.spawn((GalaxyParams::new(common_params), Transform::default())).id(),
+        BodyType::IceWorld => commands.spawn((IceWorldParams::new(common_params), Transform::default())).id(),
+        BodyType::LavaWorld => commands.spawn((LavaWorldParams::new(common_params), Transform::default())).id(),
+        BodyType::Star => commands.spawn((StarParams::new(common_params), Transform::default())).id(),
     }
 }
 
 fn spawn_planet_random(rng: &mut impl Rng, planet_type: &BodyType, commands: &mut Commands) -> Entity {
+    let common_params = CommonParams {
+        pixels: 500.0,
+        ..default()
+    };
     match planet_type {
-        BodyType::Terran => commands.spawn((TerranParams::random(rng), Transform::default())).id(),
-        BodyType::Asteroid => commands.spawn((AsteroidParams::random(rng), Transform::default())).id(),
-        BodyType::BandedGasGiant => commands.spawn((BandedGasGiantParams::random(rng), Transform::default())).id(),
-        BodyType::Martian => commands.spawn((MartianParams::random(rng), Transform::default())).id(),
-        BodyType::Islands => commands.spawn((IslandsParams::random(rng), Transform::default())).id(),
-        BodyType::NoAtmosphere => commands.spawn((NoAtmosphereParams::random(rng), Transform::default())).id(),
-        BodyType::StormyGasGiant => commands.spawn((StormyGasGiantParams::random(rng), Transform::default())).id(),
-        BodyType::BlackHole => commands.spawn((BlackHoleParams::random(rng), Transform::default())).id(),
-        BodyType::Galaxy => commands.spawn((GalaxyParams::random(rng), Transform::default())).id(),
-        BodyType::IceWorld => commands.spawn((IceWorldParams::random(rng), Transform::default())).id(),
-        BodyType::LavaWorld => commands.spawn((LavaWorldParams::random(rng), Transform::default())).id(),
-        BodyType::Star => commands.spawn((StarParams::random(rng), Transform::default())).id(),
+        BodyType::Terran => commands.spawn((TerranParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::Asteroid => commands.spawn((AsteroidParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::BandedGasGiant => commands.spawn((BandedGasGiantParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::Martian => commands.spawn((MartianParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::Islands => commands.spawn((IslandsParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::NoAtmosphere => commands.spawn((NoAtmosphereParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::StormyGasGiant => commands.spawn((StormyGasGiantParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::BlackHole => commands.spawn((BlackHoleParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::Galaxy => commands.spawn((GalaxyParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::IceWorld => commands.spawn((IceWorldParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::LavaWorld => commands.spawn((LavaWorldParams::random(rng, common_params), Transform::default())).id(),
+        BodyType::Star => commands.spawn((StarParams::random(rng, common_params), Transform::default())).id(),
     }
 }
 

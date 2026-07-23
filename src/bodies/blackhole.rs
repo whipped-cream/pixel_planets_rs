@@ -3,7 +3,7 @@ use bevy::render::render_resource::{AsBindGroup, ShaderType};
 use bevy::shader::ShaderRef;
 use bevy::sprite_render::{Material2d, Material2dPlugin};
 use rand::{Rng, RngExt};
-use crate::bodies::{generate_random_colorscheme, PixelPlanet, Random};
+use crate::bodies::{generate_random_colorscheme, CommonParams, NewWithCommon, PixelPlanet, PixelPlanetParams, Random};
 
 pub fn build(app: &mut App) {
     app
@@ -20,23 +20,21 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct BlackHoleParams {
-    pub pixels: f32,
-    pub mesh_diameter: Option<f32>,
-    pub rotation: f32,
+    pub common_params: CommonParams,
     pub accretion_disk_size_multiplier: f32,
-    pub time_speed: f32,
     pub light_origin: Vec2,
     pub shadow_params: ShadowParams,
     pub accretion_disk_params: AccretionDiskParams
 }
-impl Default for BlackHoleParams {
-    fn default() -> Self {
+impl PixelPlanetParams for BlackHoleParams {
+    fn common_params(&self) -> &CommonParams { &self.common_params }
+    fn common_params_mut(&mut self) -> &mut CommonParams { &mut self.common_params }
+}
+impl NewWithCommon for BlackHoleParams {
+    fn new(common_params: CommonParams) -> Self {
         BlackHoleParams {
-            pixels: 100.0,
-            mesh_diameter: None,
-            rotation: 0.0,
+            common_params,
             accretion_disk_size_multiplier: 3.0,
-            time_speed: 1.0,
             light_origin: Vec2::new(0.607, 0.444),
             shadow_params: Default::default(),
             accretion_disk_params: Default::default(),
@@ -44,7 +42,7 @@ impl Default for BlackHoleParams {
     }
 }
 impl Random for BlackHoleParams {
-    fn random(rng: &mut impl Rng) -> Self {
+    fn random(rng: &mut impl Rng, common_params: CommonParams) -> Self {
         let colors: [Color; 5] = generate_random_colorscheme(rng, 0.3..0.5, 2.0, 5.0, 0.7, 5.0, 0.9);
         BlackHoleParams {
             shadow_params: ShadowParams {
@@ -56,7 +54,7 @@ impl Random for BlackHoleParams {
                 seed: rng.random_range(0.0..100.0),
                 ..default()
             },
-            ..default()
+            ..Self::new(common_params)
         }
     }
 }
@@ -139,8 +137,8 @@ fn on_black_hole_added(
 
     let params = query.get(trigger.entity).unwrap();
 
-    let shadow_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
-    let accretion_disk_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0 * params.accretion_disk_size_multiplier)));
+    let shadow_mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0)));
+    let accretion_disk_mesh = Mesh2d(meshes.add(Circle::new(params.common_params.mesh_diameter.unwrap_or(params.common_params.pixels) / 2.0 * params.accretion_disk_size_multiplier)));
     let shadow = MeshMaterial2d(shadow_materials.add(Shadow::from(params)));
     let accretion_disk = MeshMaterial2d(accretion_disk_materials.add(AccretionDisk::from(params)));
 
@@ -199,7 +197,7 @@ impl From<&BlackHoleParams> for Shadow {
     fn from(value: &BlackHoleParams) -> Self {
         Shadow {
             params: ShadowUniform {
-                pixels: value.pixels,
+                pixels: value.common_params.pixels,
                 colors: value.shadow_params.colors.map(|c| c.to_linear()),
                 radius: value.shadow_params.radius,
                 light_width: value.shadow_params.light_width,
@@ -235,10 +233,10 @@ impl From<&BlackHoleParams> for AccretionDisk {
     fn from(value: &BlackHoleParams) -> Self {
         AccretionDisk {
             params: AccretionDiskUniform {
-                pixels: value.pixels * value.accretion_disk_size_multiplier,
-                rotation: value.rotation + value.accretion_disk_params.rotation_offset,
+                pixels: value.common_params.pixels * value.accretion_disk_size_multiplier,
+                rotation: value.common_params.rotation + value.accretion_disk_params.rotation_offset,
                 light_origin: value.light_origin,
-                time_speed: value.time_speed * value.accretion_disk_params.time_speed_multiplier, // This is deliberately different from the others because this is what the Godot shader does. Might make it the same later on
+                time_speed: value.common_params.time_speed * value.accretion_disk_params.time_speed_multiplier, // This is deliberately different from the others because this is what the Godot shader does. Might make it the same later on
                 disk_width: value.accretion_disk_params.disk_width,
                 ring_perspective: value.accretion_disk_params.ring_perspective,
                 should_dither: if value.accretion_disk_params.should_dither { 1 } else { 0 },
