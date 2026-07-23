@@ -32,6 +32,7 @@ pub fn build(app: &mut App) {
 pub struct IslandsParams {
     pub pixels: f32,
     pub mesh_diameter: Option<f32>,
+    pub rotation: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub ocean_params: OceanParams,
@@ -43,6 +44,7 @@ impl Default for IslandsParams {
         IslandsParams {
             pixels: 100.0,
             mesh_diameter: None,
+            rotation: 0.0,
             time_speed: 1.0,
             light_origin: Vec2::new(0.39, 0.39),
             ocean_params: Default::default(),
@@ -89,7 +91,7 @@ impl Random for IslandsParams {
 #[derive(Debug, Clone)]
 pub struct OceanParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub dither_size: Option<f32>,
     pub light_border_1: f32,
     pub light_border_2: f32,
@@ -102,7 +104,7 @@ impl Default for OceanParams {
     fn default() -> Self {
         OceanParams {
             time_speed_multiplier: 0.02,
-            rotation: 100.0,
+            rotation_offset: 0.0,
             dither_size: Some(2.0),
             light_border_1: 0.4,
             light_border_2: 0.6,
@@ -121,7 +123,7 @@ impl Default for OceanParams {
 #[derive(Debug, Clone)]
 pub struct LandmassParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     // pub dither_size: f32,
     pub light_border_1: f32,
     pub light_border_2: f32,
@@ -135,7 +137,7 @@ impl Default for LandmassParams {
     fn default() -> Self {
         LandmassParams {
             time_speed_multiplier: 0.02,
-            rotation: 0.2,
+            rotation_offset: 0.2,
             light_border_1: 0.32,
             light_border_2: 0.534,
             land_cutoff: 0.633,
@@ -155,7 +157,7 @@ impl Default for LandmassParams {
 #[derive(Debug, Clone)]
 pub struct CloudParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub cloud_cover: f32,
     pub cloud_curve: f32,
     pub stretch: f32,
@@ -170,7 +172,7 @@ impl Default for CloudParams {
     fn default() -> Self {
         CloudParams {
             time_speed_multiplier: 0.01,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             cloud_cover: 0.415,
             cloud_curve: 1.3,
             stretch: 2.0,
@@ -289,7 +291,7 @@ impl From<&IslandsParams> for Landmass {
         Landmass {
             params: LandmassUniform {
                 pixels: value.pixels,
-                rotation: value.landmass_params.rotation,
+                rotation: value.rotation + value.landmass_params.rotation_offset,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.landmass_params.time_speed_multiplier * value.landmass_params.size.round() * 2.0,
                 light_border_1: value.landmass_params.light_border_1,
@@ -309,7 +311,7 @@ impl From<&IslandsParams> for PlanetUnder {
         PlanetUnder {
             params: PlanetUnderUniform {
                 pixels: value.pixels,
-                rotation: value.ocean_params.rotation,
+                rotation: value.rotation + value.ocean_params.rotation_offset,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.ocean_params.time_speed_multiplier * value.ocean_params.size.round() * 2.0,
                 dither_size: value.ocean_params.dither_size.unwrap_or(1.0),
@@ -330,7 +332,7 @@ impl From<&IslandsParams> for Clouds {
         Clouds {
             params: CloudsUniform {
                 pixels: value.pixels,
-                rotation: value.cloud_params.rotation,
+                rotation: value.rotation + value.cloud_params.rotation_offset,
                 cloud_cover: value.cloud_params.cloud_cover,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.cloud_params.time_speed_multiplier * value.cloud_params.size.round() * 2.0,

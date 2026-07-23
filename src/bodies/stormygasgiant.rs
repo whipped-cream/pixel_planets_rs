@@ -21,6 +21,7 @@ pub fn build(app: &mut App) {
 pub struct StormyGasGiantParams {
     pub pixels: f32,
     pub mesh_diameter: Option<f32>,
+    pub rotation: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub base_layer: CloudParams,
@@ -31,6 +32,7 @@ impl Default for StormyGasGiantParams {
         StormyGasGiantParams {
             pixels: 100.0,
             mesh_diameter: None,
+            rotation: 0.0,
             time_speed: 1.0,
             light_origin: Vec2::new(0.25, 0.25),
             base_layer: CloudParams::base_default(),
@@ -70,7 +72,7 @@ impl Random for StormyGasGiantParams {
 #[derive(Debug, Clone)]
 pub struct CloudParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub cloud_cover: f32,
     pub cloud_curve: f32,
     pub stretch: f32,
@@ -86,7 +88,7 @@ impl CloudParams {
     pub fn base_default() -> CloudParams {
         CloudParams {
             time_speed_multiplier: 0.005,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             cloud_cover: 0.0,
             cloud_curve: 1.3,
             stretch: 1.0,
@@ -106,7 +108,7 @@ impl CloudParams {
     pub fn storm_default() -> CloudParams {
         CloudParams {
             time_speed_multiplier: 0.005,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             cloud_cover: 0.538,
             cloud_curve: 1.3,
             stretch: 1.0,
@@ -186,7 +188,7 @@ fn make_base_layer(value: &StormyGasGiantParams) -> Clouds {
     Clouds {
         params: CloudsUniform {
             pixels: value.pixels,
-            rotation: value.base_layer.rotation,
+            rotation: value.rotation + value.base_layer.rotation_offset,
             cloud_cover: value.base_layer.cloud_cover,
             cloud_curve: value.base_layer.cloud_curve,
             light_origin: value.light_origin,
@@ -205,7 +207,7 @@ fn make_storm_layer(value: &StormyGasGiantParams) -> Clouds {
     Clouds {
         params: CloudsUniform {
             pixels: value.pixels,
-            rotation: value.storm_layer.rotation,
+            rotation: value.rotation + value.storm_layer.rotation_offset,
             cloud_cover: value.storm_layer.cloud_cover,
             cloud_curve: value.storm_layer.cloud_curve,
             light_origin: value.light_origin,

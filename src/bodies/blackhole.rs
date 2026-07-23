@@ -22,6 +22,7 @@ pub fn build(app: &mut App) {
 pub struct BlackHoleParams {
     pub pixels: f32,
     pub mesh_diameter: Option<f32>,
+    pub rotation: f32,
     pub accretion_disk_size_multiplier: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
@@ -33,6 +34,7 @@ impl Default for BlackHoleParams {
         BlackHoleParams {
             pixels: 100.0,
             mesh_diameter: None,
+            rotation: 0.0,
             accretion_disk_size_multiplier: 3.0,
             time_speed: 1.0,
             light_origin: Vec2::new(0.607, 0.444),
@@ -85,7 +87,7 @@ pub struct AccretionDiskParams {
     pub ring_perspective: f32,
     pub should_dither: bool,
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub colors: [Color; 5],
     pub num_colors: u32,
     pub size: f32,
@@ -99,7 +101,7 @@ impl Default for AccretionDiskParams {
             ring_perspective: 14.0,
             should_dither: true,
             time_speed_multiplier: 0.2 * 314.15 * 0.004,
-            rotation: 0.766,
+            rotation_offset: 0.766,
             colors: [
                 Srgba::hex("ffffeb").unwrap().into(),
                 Srgba::hex("fff540").unwrap().into(),
@@ -234,7 +236,7 @@ impl From<&BlackHoleParams> for AccretionDisk {
         AccretionDisk {
             params: AccretionDiskUniform {
                 pixels: value.pixels * value.accretion_disk_size_multiplier,
-                rotation: value.accretion_disk_params.rotation,
+                rotation: value.rotation + value.accretion_disk_params.rotation_offset,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.accretion_disk_params.time_speed_multiplier, // This is deliberately different from the others because this is what the Godot shader does. Might make it the same later on
                 disk_width: value.accretion_disk_params.disk_width,

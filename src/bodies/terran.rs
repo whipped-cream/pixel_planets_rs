@@ -27,6 +27,7 @@ pub fn build(app: &mut App) {
 pub struct TerranParams {
     pub pixels: f32,
     pub mesh_diameter: Option<f32>,
+    pub rotation: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub land_params: LandParams,
@@ -37,6 +38,7 @@ impl Default for TerranParams {
         TerranParams {
             pixels: 100.0,
             mesh_diameter: None,
+            rotation: 0.0,
             time_speed: 1.0,
             light_origin: vec2(0.39, 0.39),
             land_params: Default::default(),
@@ -83,7 +85,7 @@ impl Random for TerranParams {
 #[derive(Debug, Clone)]
 pub struct LandParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub dither_size: Option<f32>,
     pub light_border_1: f32,
     pub light_border_2: f32,
@@ -97,7 +99,7 @@ impl Default for LandParams {
     fn default() -> Self {
         LandParams {
             time_speed_multiplier: 0.02,
-            rotation: 0.2,
+            rotation_offset: 0.2,
             // time_speed: 0.1,
             dither_size: Some(3.951),
             light_border_1: 0.287,
@@ -121,7 +123,7 @@ impl Default for LandParams {
 #[derive(Debug, Clone)]
 pub struct CloudParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     // pub time_speed: f32,
     pub cloud_cover: f32,
     pub cloud_curve: f32,
@@ -137,7 +139,7 @@ impl Default for CloudParams {
     fn default() -> Self {
         CloudParams {
             time_speed_multiplier: 0.01,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             // time_speed: 0.1,
             cloud_cover: 0.47,
             cloud_curve: 1.3,
@@ -250,7 +252,7 @@ impl From<&TerranParams> for Land {
         Land {
             params: LandUniform {
                 pixels: value.pixels,
-                rotation: value.land_params.rotation,
+                rotation: value.rotation + value.land_params.rotation_offset,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.land_params.time_speed_multiplier * value.land_params.size.round() * 2.0,
                 dither_size: value.land_params.dither_size.unwrap_or(1.0),
@@ -272,7 +274,7 @@ impl From<&TerranParams> for Clouds {
         Clouds {
             params: CloudsUniform {
                 pixels: value.pixels,
-                rotation: value.cloud_params.rotation,
+                rotation: value.rotation + value.cloud_params.rotation_offset,
                 cloud_cover: value.cloud_params.cloud_cover,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.cloud_params.time_speed_multiplier * value.cloud_params.size.round() * 2.0,

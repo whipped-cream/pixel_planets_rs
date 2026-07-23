@@ -24,6 +24,7 @@ pub struct StarParams {
     pub pixels: f32,
     pub mesh_diameter: Option<f32>,
     pub outer_size_multiplier: f32,
+    pub rotation: f32,
     pub time_speed: f32,
     pub body_params: BodyParams,
     pub blob_params: BlobParams,
@@ -34,6 +35,7 @@ impl Default for StarParams {
         StarParams {
             pixels: 100.0,
             mesh_diameter: None,
+            rotation: 0.0,
             outer_size_multiplier: 2.0,
             time_speed: 1.0,
             body_params: Default::default(),
@@ -70,7 +72,7 @@ impl Random for StarParams {
 #[derive(Debug, Clone)]
 pub struct BodyParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub colors: [Color; 4],
     pub num_colors: u32,
     pub should_dither: bool,
@@ -83,7 +85,7 @@ impl Default for BodyParams {
     fn default() -> Self {
         BodyParams {
             time_speed_multiplier: 0.005,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             colors: [
                 Srgba::hex("f5ffe8").unwrap().into(),
                 Srgba::hex("77d6c1").unwrap().into(),
@@ -103,7 +105,7 @@ impl Default for BodyParams {
 #[derive(Debug, Clone)]
 pub struct BlobParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub circle_amount: f32,
     pub circle_size: f32,
     pub colors: [Color; 1],
@@ -115,7 +117,7 @@ impl Default for BlobParams {
     fn default() -> Self {
         BlobParams {
             time_speed_multiplier: 0.01,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             circle_amount: 2.0,
             circle_size: 1.0,
             colors: [
@@ -131,7 +133,7 @@ impl Default for BlobParams {
 #[derive(Debug, Clone)]
 pub struct FlareParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub should_dither: bool,
     pub storm_width: f32,
     pub storm_dither_width: f32,
@@ -147,7 +149,7 @@ impl Default for FlareParams {
     fn default() -> Self {
         FlareParams {
             time_speed_multiplier: 0.015,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             should_dither: true,
             storm_width: 0.3,
             storm_dither_width: 0.0,
@@ -268,7 +270,7 @@ impl From<&StarParams> for Body {
             params: BodyUniform {
                 pixels: value.pixels,
                 time_speed: value.time_speed * value.body_params.time_speed_multiplier * value.body_params.size.round() * 2.0,
-                rotation: value.body_params.rotation,
+                rotation: value.rotation + value.body_params.rotation_offset,
                 colors: value.body_params.colors.map(|c| c.to_linear()),
                 num_colors: value.body_params.num_colors,
                 should_dither: if value.body_params.should_dither { 1 } else { 0 },
@@ -307,7 +309,7 @@ impl From<&StarParams> for Blobs {
             params: BlobUniform {
                 pixels: value.pixels * value.outer_size_multiplier,
                 time_speed: value.time_speed * value.blob_params.time_speed_multiplier * value.blob_params.size.round() * 2.0,
-                rotation: value.blob_params.rotation,
+                rotation: value.rotation + value.blob_params.rotation_offset,
                 circle_amount: value.blob_params.circle_amount,
                 circle_size: value.blob_params.circle_size,
                 colors: value.blob_params.colors.map(|c| c.to_linear()),
@@ -349,7 +351,7 @@ impl From<&StarParams> for Flares {
             params: FlareUniform {
                 pixels: value.pixels * value.outer_size_multiplier,
                 time_speed: value.time_speed * value.flare_params.time_speed_multiplier * value.flare_params.size.round() * 2.0,
-                rotation: value.flare_params.rotation,
+                rotation: value.rotation + value.flare_params.rotation_offset,
                 should_dither: if value.flare_params.should_dither { 1 } else { 0 },
                 storm_width: value.flare_params.storm_width,
                 storm_dither_width: value.flare_params.storm_dither_width,

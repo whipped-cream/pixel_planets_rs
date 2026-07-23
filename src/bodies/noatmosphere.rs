@@ -24,6 +24,7 @@ pub fn build(app: &mut App) {
 pub struct NoAtmosphereParams {
     pub pixels: f32,
     pub mesh_diameter: Option<f32>,
+    pub rotation: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub surface_params: SurfaceParams,
@@ -34,6 +35,7 @@ impl Default for NoAtmosphereParams {
         NoAtmosphereParams {
             pixels: 100.0,
             mesh_diameter: None,
+            rotation: 0.0,
             time_speed: 1.0,
             light_origin: Vec2::new(0.25, 0.25),
             surface_params: Default::default(),
@@ -63,7 +65,7 @@ impl Random for NoAtmosphereParams {
 #[derive(Debug, Clone)]
 pub struct SurfaceParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub dither_size: Option<f32>,
     pub light_border_1: f32,
     pub light_border_2: f32,
@@ -76,7 +78,7 @@ impl Default for SurfaceParams {
     fn default() -> Self {
         SurfaceParams {
             time_speed_multiplier: 0.02,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             dither_size: Some(2.0),
             light_border_1: 0.615,
             light_border_2: 0.729,
@@ -96,7 +98,7 @@ impl Default for SurfaceParams {
 pub struct CratersParams {
     // TODO: The pixels value for this one is different from the Surface.
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub light_border: f32,
     pub colors: [Color; 2],
     pub size: f32,
@@ -107,7 +109,7 @@ impl Default for CratersParams {
     fn default() -> Self {
         CratersParams {
             time_speed_multiplier: 0.02,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             light_border: 0.465,
             colors: [
                 Srgba::hex("4c6885").unwrap().into(),
@@ -184,7 +186,7 @@ impl From<&NoAtmosphereParams> for Surface {
         Surface {
             params: SurfaceUniform {
                 pixels: value.pixels,
-                rotation: value.surface_params.rotation,
+                rotation: value.rotation + value.surface_params.rotation_offset,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.surface_params.time_speed_multiplier * value.surface_params.size.round() * 2.0,
                 dither_size: value.surface_params.dither_size.unwrap_or(1.0),
@@ -205,7 +207,7 @@ impl From<&NoAtmosphereParams> for Craters {
         Craters {
             params: CratersUniform {
                 pixels: value.pixels * 87.419 / 100.0, // I don't think this needs to have a multiplier but if you have need for it I am open to accepting a PR
-                rotation: value.craters_params.rotation,
+                rotation: value.rotation + value.craters_params.rotation_offset,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.craters_params.time_speed_multiplier * value.craters_params.size.round() * 2.0,
                 light_border: value.craters_params.light_border,

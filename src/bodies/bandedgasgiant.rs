@@ -25,6 +25,7 @@ pub fn build(app: &mut App) {
 pub struct BandedGasGiantParams {
     pub pixels: f32,
     pub mesh_diameter: Option<f32>,
+    pub rotation: f32,
     pub ring_size_multiplier: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
@@ -36,6 +37,7 @@ impl Default for BandedGasGiantParams {
         BandedGasGiantParams {
             pixels: 100.0,
             mesh_diameter: None,
+            rotation: 0.0,
             ring_size_multiplier: 3.0,
             time_speed: 1.0,
             light_origin: Vec2::new(-0.1, 0.3),
@@ -83,7 +85,7 @@ impl Random for BandedGasGiantParams {
 #[derive(Debug, Clone)]
 pub struct BaseParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub cloud_cover: f32,
     pub cloud_curve: f32,
     pub stretch: f32,
@@ -102,7 +104,7 @@ impl Default for BaseParams {
     fn default() -> Self {
         BaseParams {
             time_speed_multiplier: 0.004,
-            rotation: 0.0,
+            rotation_offset: 0.0,
             cloud_cover: 0.61,
             cloud_curve: 1.376,
             stretch: 2.204,
@@ -131,7 +133,7 @@ impl Default for BaseParams {
 #[derive(Debug, Clone)]
 pub struct RingParams {
     pub time_speed_multiplier: f32,
-    pub rotation: f32,
+    pub rotation_offset: f32,
     pub light_border_1: f32,
     pub light_border_2: f32,
     pub ring_width: f32,
@@ -148,7 +150,7 @@ impl Default for RingParams {
     fn default() -> Self {
         RingParams {
             time_speed_multiplier: 314.15 * 0.004 * 0.2,
-            rotation: 0.7,
+            rotation_offset: 0.7,
             light_border_1: 0.52,
             light_border_2: 0.62,
             ring_width: 0.127,
@@ -268,7 +270,7 @@ impl From<&BandedGasGiantParams> for Base {
         Base {
             params: BaseUniform {
                 pixels: value.pixels,
-                rotation: value.base_layer_params.rotation,
+                rotation: value.rotation + value.base_layer_params.rotation_offset,
                 light_origin: value.light_origin,
                 cloud_cover: value.base_layer_params.cloud_cover,
                 cloud_curve: value.base_layer_params.cloud_curve,
@@ -320,7 +322,7 @@ impl From<&BandedGasGiantParams> for Ring {
         Ring {
             params: RingUniform {
                 pixels: value.pixels * value.ring_size_multiplier,
-                rotation: value.ring_params.rotation,
+                rotation: value.rotation + value.ring_params.rotation_offset,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.ring_params.time_speed_multiplier, // This is deliberately different from the others to match the Godot
                 light_border_1: value.ring_params.light_border_1,

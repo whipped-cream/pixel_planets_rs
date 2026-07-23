@@ -22,6 +22,12 @@ pub mod star;
 #[derive(Component, Default)]
 pub struct PixelPlanet;
 
+pub struct CommonParams {
+    pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
+
+}
+
 /// The Randomizable trait states that a struct can be constructed randomly
 pub trait Random {
     /// Generate a random body.
