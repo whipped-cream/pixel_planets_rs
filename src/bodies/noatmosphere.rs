@@ -22,8 +22,8 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct NoAtmosphereParams {
-    pub mesh_radius: f32,
     pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub surface_params: SurfaceParams,
@@ -32,8 +32,8 @@ pub struct NoAtmosphereParams {
 impl Default for NoAtmosphereParams {
     fn default() -> Self {
         NoAtmosphereParams {
-            mesh_radius: 100.0,
             pixels: 100.0,
+            mesh_diameter: None,
             time_speed: 1.0,
             light_origin: Vec2::new(0.25, 0.25),
             surface_params: Default::default(),
@@ -137,11 +137,11 @@ fn on_no_atmosphere_added(
 ) {
     info!("No Atmosphere planet added!");
 
-    let no_atmosphere_params = query.get(trigger.entity).unwrap();
+    let params = query.get(trigger.entity).unwrap();
 
-    let mesh = Mesh2d(meshes.add(Circle::new(no_atmosphere_params.mesh_radius)));
-    let surface = MeshMaterial2d(surface_materials.add(Surface::from(no_atmosphere_params)));
-    let craters = MeshMaterial2d(craters_materials.add(Craters::from(no_atmosphere_params)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let surface = MeshMaterial2d(surface_materials.add(Surface::from(params)));
+    let craters = MeshMaterial2d(craters_materials.add(Craters::from(params)));
 
     #[cfg(feature = "dynamic")]
     commands.entity(trigger.entity).insert(NoAtmosphereHandles {
@@ -204,7 +204,7 @@ impl From<&NoAtmosphereParams> for Craters {
     fn from(value: &NoAtmosphereParams) -> Self {
         Craters {
             params: CratersUniform {
-                pixels: value.pixels * 87.419 / 100.0,
+                pixels: value.pixels * 87.419 / 100.0, // I don't think this needs to have a multiplier but if you have need for it I am open to accepting a PR
                 rotation: value.craters_params.rotation,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.craters_params.time_speed_multiplier * value.craters_params.size.round() * 2.0,

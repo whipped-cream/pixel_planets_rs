@@ -22,8 +22,8 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct MartianParams {
-    pub mesh_radius: f32,
     pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
     pub rotation: f32,
     pub light_origin: Vec2,
     pub light_border_1: f32,
@@ -40,8 +40,8 @@ pub struct MartianParams {
 impl Default for MartianParams {
     fn default() -> Self {
         MartianParams {
-            mesh_radius: 100.0,
             pixels: 100.0,
+            mesh_diameter: None,
             rotation: 0.0,
             light_origin: Vec2::new(0.4, 0.3),
             light_border_1: 0.362,
@@ -87,7 +87,7 @@ fn on_martian_added(
     let params = query.get(trigger.entity).unwrap();
 
     // TODO: Can we do this without manually maintaining meshes
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_radius)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
     let martian = MeshMaterial2d(materials.add(Martian::from(params)));
 
     #[cfg(feature = "dynamic")]

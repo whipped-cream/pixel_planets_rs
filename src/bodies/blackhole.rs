@@ -20,8 +20,9 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct BlackHoleParams {
-    pub mesh_radius: f32,
-    pub accretion_disk_mesh_radius: f32,
+    pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
+    pub accretion_disk_size_multiplier: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub shadow_params: ShadowParams,
@@ -30,8 +31,9 @@ pub struct BlackHoleParams {
 impl Default for BlackHoleParams {
     fn default() -> Self {
         BlackHoleParams {
-            mesh_radius: 100.0,
-            accretion_disk_mesh_radius: 300.0,
+            pixels: 100.0,
+            mesh_diameter: None,
+            accretion_disk_size_multiplier: 3.0,
             time_speed: 1.0,
             light_origin: Vec2::new(0.607, 0.444),
             shadow_params: Default::default(),
@@ -59,7 +61,6 @@ impl Random for BlackHoleParams {
 
 #[derive(Debug, Clone)]
 pub struct ShadowParams {
-    pub pixels: f32,
     pub radius: f32,
     pub light_width: f32,
     pub colors: [Color; 3],
@@ -67,7 +68,6 @@ pub struct ShadowParams {
 impl Default for ShadowParams {
     fn default() -> Self {
         ShadowParams {
-            pixels: 100.0,
             radius: 0.247,
             light_width: 0.028,
             colors: [
@@ -84,7 +84,6 @@ pub struct AccretionDiskParams {
     pub disk_width: f32,
     pub ring_perspective: f32,
     pub should_dither: bool,
-    pub pixels: f32,
     pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub colors: [Color; 5],
@@ -99,7 +98,6 @@ impl Default for AccretionDiskParams {
             disk_width: 0.065,
             ring_perspective: 14.0,
             should_dither: true,
-            pixels: 300.0,
             time_speed_multiplier: 0.2 * 314.15 * 0.004,
             rotation: 0.766,
             colors: [
@@ -139,8 +137,8 @@ fn on_black_hole_added(
 
     let params = query.get(trigger.entity).unwrap();
 
-    let shadow_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_radius)));
-    let accretion_disk_mesh = Mesh2d(meshes.add(Circle::new(params.accretion_disk_mesh_radius)));
+    let shadow_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let accretion_disk_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0 * params.accretion_disk_size_multiplier)));
     let shadow = MeshMaterial2d(shadow_materials.add(Shadow::from(params)));
     let accretion_disk = MeshMaterial2d(accretion_disk_materials.add(AccretionDisk::from(params)));
 
@@ -199,7 +197,7 @@ impl From<&BlackHoleParams> for Shadow {
     fn from(value: &BlackHoleParams) -> Self {
         Shadow {
             params: ShadowUniform {
-                pixels: value.shadow_params.pixels,
+                pixels: value.pixels,
                 colors: value.shadow_params.colors.map(|c| c.to_linear()),
                 radius: value.shadow_params.radius,
                 light_width: value.shadow_params.light_width,
@@ -235,7 +233,7 @@ impl From<&BlackHoleParams> for AccretionDisk {
     fn from(value: &BlackHoleParams) -> Self {
         AccretionDisk {
             params: AccretionDiskUniform {
-                pixels: value.accretion_disk_params.pixels,
+                pixels: value.pixels * value.accretion_disk_size_multiplier,
                 rotation: value.accretion_disk_params.rotation,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.accretion_disk_params.time_speed_multiplier, // This is deliberately different from the others because this is what the Godot shader does. Might make it the same later on

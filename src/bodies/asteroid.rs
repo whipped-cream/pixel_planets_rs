@@ -22,8 +22,8 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct AsteroidParams {
-    pub mesh_radius: f32,
     pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
     pub should_dither: bool,
     pub rotation: f32,
     pub light_origin: Vec2,
@@ -35,8 +35,8 @@ pub struct AsteroidParams {
 impl Default for AsteroidParams {
     fn default() -> Self {
         AsteroidParams {
-            mesh_radius: 100.0,
             pixels: 100.0,
+            mesh_diameter: None,
             should_dither: true,
             rotation: 0.0,
             light_origin: Vec2::new(0.0, 0.0),
@@ -89,7 +89,7 @@ fn on_asteroid_added(
     let params = query.get(trigger.entity).unwrap();
 
     // TODO: Can we do this without manually maintaining meshes
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_radius)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
     let asteroid = MeshMaterial2d(materials.add(Asteroid::from(params)));
 
     #[cfg(feature = "dynamic")]

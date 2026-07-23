@@ -23,8 +23,9 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct BandedGasGiantParams {
-    pub mesh_radius: f32,
-    pub ring_mesh_radius: f32,
+    pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
+    pub ring_size_multiplier: f32,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub base_layer_params: BaseParams,
@@ -33,8 +34,9 @@ pub struct BandedGasGiantParams {
 impl Default for BandedGasGiantParams {
     fn default() -> Self {
         BandedGasGiantParams {
-            mesh_radius: 100.0,
-            ring_mesh_radius: 300.0,
+            pixels: 100.0,
+            mesh_diameter: None,
+            ring_size_multiplier: 3.0,
             time_speed: 1.0,
             light_origin: Vec2::new(-0.1, 0.3),
             base_layer_params: Default::default(),
@@ -80,7 +82,6 @@ impl Random for BandedGasGiantParams {
 
 #[derive(Debug, Clone)]
 pub struct BaseParams {
-    pub pixels: f32,
     pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub cloud_cover: f32,
@@ -100,7 +101,6 @@ pub struct BaseParams {
 impl Default for BaseParams {
     fn default() -> Self {
         BaseParams {
-            pixels: 100.0,
             time_speed_multiplier: 0.004,
             rotation: 0.0,
             cloud_cover: 0.61,
@@ -130,7 +130,6 @@ impl Default for BaseParams {
 
 #[derive(Debug, Clone)]
 pub struct RingParams {
-    pub pixels: f32,
     pub time_speed_multiplier: f32,
     pub rotation: f32,
     pub light_border_1: f32,
@@ -148,7 +147,6 @@ pub struct RingParams {
 impl Default for RingParams {
     fn default() -> Self {
         RingParams {
-            pixels: 300.0,
             time_speed_multiplier: 314.15 * 0.004 * 0.2,
             rotation: 0.7,
             light_border_1: 0.52,
@@ -194,12 +192,12 @@ fn on_banded_gas_giant_added(
 ) {
     info!("Banded Gas Giant added!");
 
-    let banded_gas_giant_params = query.get(trigger.entity).unwrap();
+    let params = query.get(trigger.entity).unwrap();
 
-    let base_mesh = Mesh2d(meshes.add(Circle::new(banded_gas_giant_params.mesh_radius)));
-    let ring_mesh = Mesh2d(meshes.add(Circle::new(banded_gas_giant_params.ring_mesh_radius)));
-    let base = MeshMaterial2d(base_layer_materials.add(Base::from(banded_gas_giant_params)));
-    let ring = MeshMaterial2d(ring_materials.add(Ring::from(banded_gas_giant_params)));
+    let base_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let ring_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0 * params.ring_size_multiplier)));
+    let base = MeshMaterial2d(base_layer_materials.add(Base::from(params)));
+    let ring = MeshMaterial2d(ring_materials.add(Ring::from(params)));
 
     #[cfg(feature = "dynamic")]
     commands.entity(trigger.entity).insert(BandedGasGiantHandles {
@@ -269,7 +267,7 @@ impl From<&BandedGasGiantParams> for Base {
     fn from(value: &BandedGasGiantParams) -> Self {
         Base {
             params: BaseUniform {
-                pixels: value.base_layer_params.pixels,
+                pixels: value.pixels,
                 rotation: value.base_layer_params.rotation,
                 light_origin: value.light_origin,
                 cloud_cover: value.base_layer_params.cloud_cover,
@@ -321,7 +319,7 @@ impl From<&BandedGasGiantParams> for Ring {
     fn from(value: &BandedGasGiantParams) -> Self {
         Ring {
             params: RingUniform {
-                pixels: value.ring_params.pixels,
+                pixels: value.pixels * value.ring_size_multiplier,
                 rotation: value.ring_params.rotation,
                 light_origin: value.light_origin,
                 time_speed: value.time_speed * value.ring_params.time_speed_multiplier, // This is deliberately different from the others to match the Godot

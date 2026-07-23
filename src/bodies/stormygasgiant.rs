@@ -19,8 +19,8 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct StormyGasGiantParams {
-    pub mesh_radius: f32,
     pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub base_layer: CloudParams,
@@ -29,8 +29,8 @@ pub struct StormyGasGiantParams {
 impl Default for StormyGasGiantParams {
     fn default() -> Self {
         StormyGasGiantParams {
-            mesh_radius: 100.0,
             pixels: 100.0,
+            mesh_diameter: None,
             time_speed: 1.0,
             light_origin: Vec2::new(0.25, 0.25),
             base_layer: CloudParams::base_default(),
@@ -71,7 +71,6 @@ impl Random for StormyGasGiantParams {
 pub struct CloudParams {
     pub time_speed_multiplier: f32,
     pub rotation: f32,
-    // pub time_speed: f32,
     pub cloud_cover: f32,
     pub cloud_curve: f32,
     pub stretch: f32,
@@ -143,11 +142,11 @@ fn on_stormy_gas_giant_added(
 ) {
     info!("Stormy Gas Giant added!");
 
-    let stormy_gas_giant_params = query.get(trigger.entity).unwrap();
+    let params = query.get(trigger.entity).unwrap();
 
-    let mesh = Mesh2d(meshes.add(Circle::new(stormy_gas_giant_params.mesh_radius)));
-    let base_layer = MeshMaterial2d(materials.add(make_base_layer(stormy_gas_giant_params)));
-    let storm_layer = MeshMaterial2d(materials.add(make_storm_layer(stormy_gas_giant_params)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let base_layer = MeshMaterial2d(materials.add(make_base_layer(params)));
+    let storm_layer = MeshMaterial2d(materials.add(make_storm_layer(params)));
 
     #[cfg(feature = "dynamic")]
     commands.entity(trigger.entity).insert(StormyGasGiantHandles {

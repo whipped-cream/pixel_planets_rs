@@ -23,8 +23,8 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct GalaxyParams {
-    pub mesh_radius: f32,
     pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
     pub rotation: f32,
     pub time_speed: f32,
     pub time_speed_multiplier: f32,
@@ -43,8 +43,8 @@ pub struct GalaxyParams {
 impl Default for GalaxyParams {
     fn default() -> Self {
         GalaxyParams {
-            mesh_radius: 200.0,
             pixels: 200.0,
+            mesh_diameter: None,
             rotation: 0.674,
             time_speed: -1.0, // Changed from Godot because clockwise looks nicer than anticlockwise IMO
             time_speed_multiplier: 0.04,
@@ -92,7 +92,7 @@ fn on_galaxy_added(
     let params = query.get(trigger.entity).unwrap();
 
     // TODO: Can we do this without manually maintaining meshes
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_radius)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
     let galaxy = MeshMaterial2d(materials.add(Galaxy::from(params)));
 
     #[cfg(feature = "dynamic")]

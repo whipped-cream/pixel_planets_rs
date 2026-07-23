@@ -21,8 +21,9 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct StarParams {
-    pub mesh_radius: f32,
-    pub outer_mesh_radius: f32,
+    pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
+    pub outer_size_multiplier: f32,
     pub time_speed: f32,
     pub body_params: BodyParams,
     pub blob_params: BlobParams,
@@ -31,8 +32,9 @@ pub struct StarParams {
 impl Default for StarParams {
     fn default() -> Self {
         StarParams {
-            mesh_radius: 100.0,
-            outer_mesh_radius: 200.0,
+            pixels: 100.0,
+            mesh_diameter: None,
+            outer_size_multiplier: 2.0,
             time_speed: 1.0,
             body_params: Default::default(),
             blob_params: Default::default(),
@@ -68,7 +70,6 @@ impl Random for StarParams {
 #[derive(Debug, Clone)]
 pub struct BodyParams {
     pub time_speed_multiplier: f32,
-    pub pixels: f32,
     pub rotation: f32,
     pub colors: [Color; 4],
     pub num_colors: u32,
@@ -82,7 +83,6 @@ impl Default for BodyParams {
     fn default() -> Self {
         BodyParams {
             time_speed_multiplier: 0.005,
-            pixels: 100.0,
             rotation: 0.0,
             colors: [
                 Srgba::hex("f5ffe8").unwrap().into(),
@@ -103,7 +103,6 @@ impl Default for BodyParams {
 #[derive(Debug, Clone)]
 pub struct BlobParams {
     pub time_speed_multiplier: f32,
-    pub pixels: f32,
     pub rotation: f32,
     pub circle_amount: f32,
     pub circle_size: f32,
@@ -116,7 +115,6 @@ impl Default for BlobParams {
     fn default() -> Self {
         BlobParams {
             time_speed_multiplier: 0.01,
-            pixels: 200.0,
             rotation: 0.0,
             circle_amount: 2.0,
             circle_size: 1.0,
@@ -133,7 +131,6 @@ impl Default for BlobParams {
 #[derive(Debug, Clone)]
 pub struct FlareParams {
     pub time_speed_multiplier: f32,
-    pub pixels: f32,
     pub rotation: f32,
     pub should_dither: bool,
     pub storm_width: f32,
@@ -150,7 +147,6 @@ impl Default for FlareParams {
     fn default() -> Self {
         FlareParams {
             time_speed_multiplier: 0.015,
-            pixels: 200.0,
             rotation: 0.0,
             should_dither: true,
             storm_width: 0.3,
@@ -193,8 +189,8 @@ fn on_star_added(
 
     let params = query.get(trigger.entity).unwrap();
 
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_radius)));
-    let outer_mesh = Mesh2d(meshes.add(Circle::new(params.outer_mesh_radius)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let outer_mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0 * params.outer_size_multiplier)));
     let body = MeshMaterial2d(body_materials.add(Body::from(params)));
     let blobs = MeshMaterial2d(blob_materials.add(Blobs::from(params)));
     let flares = MeshMaterial2d(flare_materials.add(Flares::from(params)));
@@ -270,7 +266,7 @@ impl From<&StarParams> for Body {
     fn from(value: &StarParams) -> Self {
         Body {
             params: BodyUniform {
-                pixels: value.body_params.pixels,
+                pixels: value.pixels,
                 time_speed: value.time_speed * value.body_params.time_speed_multiplier * value.body_params.size.round() * 2.0,
                 rotation: value.body_params.rotation,
                 colors: value.body_params.colors.map(|c| c.to_linear()),
@@ -309,7 +305,7 @@ impl From<&StarParams> for Blobs {
     fn from(value: &StarParams) -> Self {
         Blobs {
             params: BlobUniform {
-                pixels: value.blob_params.pixels,
+                pixels: value.pixels * value.outer_size_multiplier,
                 time_speed: value.time_speed * value.blob_params.time_speed_multiplier * value.blob_params.size.round() * 2.0,
                 rotation: value.blob_params.rotation,
                 circle_amount: value.blob_params.circle_amount,
@@ -351,7 +347,7 @@ impl From<&StarParams> for Flares {
     fn from(value: &StarParams) -> Self {
         Flares {
             params: FlareUniform {
-                pixels: value.flare_params.pixels,
+                pixels: value.pixels * value.outer_size_multiplier,
                 time_speed: value.time_speed * value.flare_params.time_speed_multiplier * value.flare_params.size.round() * 2.0,
                 rotation: value.flare_params.rotation,
                 should_dither: if value.flare_params.should_dither { 1 } else { 0 },

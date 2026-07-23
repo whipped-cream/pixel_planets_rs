@@ -27,8 +27,8 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct LavaWorldParams {
-    pub mesh_radius: f32,
     pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub surface_params: SurfaceParams,
@@ -38,8 +38,8 @@ pub struct LavaWorldParams {
 impl Default for LavaWorldParams {
     fn default() -> Self {
         LavaWorldParams {
-            mesh_radius: 100.0,
             pixels: 100.0,
+            mesh_diameter: None,
             time_speed: 1.0,
             light_origin: Vec2::new(0.3, 0.3),
             surface_params: Default::default(),
@@ -197,7 +197,7 @@ fn on_lava_world_added(
 
     let params = query.get(trigger.entity).unwrap();
 
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_radius)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
     let surface = MeshMaterial2d(surface_materials.add(Surface::from(params)));
     let craters = MeshMaterial2d(craters_materials.add(Craters::from(params)));
     let lava_rivers = MeshMaterial2d(lava_rivers_materials.add(LavaRivers::from(params)));

@@ -26,7 +26,7 @@ pub fn build(app: &mut App) {
 #[require(PixelPlanet)]
 pub struct TerranParams {
     pub pixels: f32,
-    pub mesh_radius: f32,
+    pub mesh_diameter: Option<f32>,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub land_params: LandParams,
@@ -36,7 +36,7 @@ impl Default for TerranParams {
     fn default() -> Self {
         TerranParams {
             pixels: 100.0,
-            mesh_radius: 100.0,
+            mesh_diameter: None,
             time_speed: 1.0,
             light_origin: vec2(0.39, 0.39),
             land_params: Default::default(),
@@ -49,7 +49,6 @@ impl Random for TerranParams {
         let hue_diff = rng.random_range(0.7..1.0);
         let saturation = rng.random_range(0.45..0.55);
         let seed_colors: [_; 3] = generate_colorscheme_base(rng, hue_diff, saturation);
-        dbg!(&seed_colors);
 
         let land_colors_1: [_; 4] = array::from_fn(|i| {
             let new_color = Hsva::from(seed_colors[0].mix(&Color::BLACK, i as f32 / 4.0));
@@ -180,7 +179,7 @@ fn on_terran_added(
     let params = query.get(trigger.entity).unwrap();
 
     // TODO: Can we do this without manually maintaining meshes
-    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_radius)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
     let land = MeshMaterial2d(land_materials.add(Land::from(params)));
     let cloud = MeshMaterial2d(cloud_materials.add(Clouds::from(params)));
 

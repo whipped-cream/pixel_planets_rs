@@ -30,8 +30,8 @@ pub fn build(app: &mut App) {
 #[derive(Component, Debug, Clone)]
 #[require(PixelPlanet)]
 pub struct IslandsParams {
-    pub mesh_radius: f32, // TODO: I think this is a radius and pixels is a diameter and these should stay in sync
     pub pixels: f32,
+    pub mesh_diameter: Option<f32>,
     pub time_speed: f32,
     pub light_origin: Vec2,
     pub ocean_params: OceanParams,
@@ -41,8 +41,8 @@ pub struct IslandsParams {
 impl Default for IslandsParams {
     fn default() -> Self {
         IslandsParams {
-            mesh_radius: 100.0,
             pixels: 100.0,
+            mesh_diameter: None,
             time_speed: 1.0,
             light_origin: Vec2::new(0.39, 0.39),
             ocean_params: Default::default(),
@@ -209,12 +209,12 @@ fn on_islands_added(
 ) {
     info!("Islands planet added!");
 
-    let islands_params = query.get(trigger.entity).unwrap();
+    let params = query.get(trigger.entity).unwrap();
 
-    let mesh = Mesh2d(meshes.add(Circle::new(islands_params.mesh_radius)));
-    let ocean = MeshMaterial2d(ocean_materials.add(PlanetUnder::from(islands_params)));
-    let landmass = MeshMaterial2d(landmass_materials.add(Landmass::from(islands_params)));
-    let cloud = MeshMaterial2d(cloud_materials.add(Clouds::from(islands_params)));
+    let mesh = Mesh2d(meshes.add(Circle::new(params.mesh_diameter.unwrap_or(params.pixels) / 2.0)));
+    let ocean = MeshMaterial2d(ocean_materials.add(PlanetUnder::from(params)));
+    let landmass = MeshMaterial2d(landmass_materials.add(Landmass::from(params)));
+    let cloud = MeshMaterial2d(cloud_materials.add(Clouds::from(params)));
 
     #[cfg(feature = "dynamic")]
     commands.entity(trigger.entity).insert(IslandsHandles {
